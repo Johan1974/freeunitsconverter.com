@@ -1,0 +1,24 @@
+# Ignore Git files
+.git
+.gitignore
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Docker cache & local env
+*.log
+*.pid
+.env
+
+# Node / frontend (if using npm modules)
+node_modules/
+
+# Certbot folders (don't copy certs into image)
+certbot/www/
+certbot/conf/accounts/
+certbot/conf/archive/
+
+# Other unnecessary files
+index_old.html
+index_Likethis.html
