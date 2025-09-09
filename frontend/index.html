@@ -1,130 +1,147 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Free Units Converter — Convert Length, Weight, Temperature & Volume</title>
-  <meta name="description" content="Free Units Converter lets you quickly convert length, weight, temperature, and volume units online. Simple, fast, accurate and always free." />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-<div class="container">
-  <header>
-    <div class="logo">Free Units Converter</div>
-    <nav aria-label="Main navigation">
-      <a href="#categories">Categories</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Free Units Converter — Convert Length, Weight, Temperature & Volume</title>
+    <meta name="description" id="meta-description" content="Free Units Converter lets you quickly convert length, weight, temperature, and volume units online. Simple, fast, accurate and always free." />
+    <link rel="canonical" id="canonical-link" href="https://freeunitsconverter.com/">
+    <script type="application/ld+json" id="json-ld">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "url": "https://freeunitsconverter.com/",
+        "name": "Free Units Converter — Convert Length, Weight, Temperature & Volume"
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+  </head>
 
-  <section class="hero">
-    <h1 class="title">Convert any unit instantly</h1>
-    <p class="subtitle">Simple · Fast · Accurate — Save favorites and view recent conversions</p>
-  </section>
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo">Free Units Converter</div>
+        <nav aria-label="Main navigation">
+          <a href="#categories">Categories</a>
+          <a href="#about">About</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
 
-  <div class="card ad-slot" aria-hidden="true" id="ad-top">Ad placeholder — Top Banner (eg. responsive leaderboard)</div>
-
-  <main class="main-grid">
-    <!-- Left: Converter -->
-    <div>
-      <section class="card converter" aria-label="Converter">
-        <div class="tabs" id="categoryTabs" role="tablist" aria-label="Categories"></div>
-        <div id="converterArea">
-          <div class="row">
-            <input id="valueInput" class="input" type="text" inputmode="decimal" aria-label="Value to convert" placeholder="Enter a number (e.g. 100)">
-            <select id="fromSelect" class="select" aria-label="From unit"></select>
-            <select id="toSelect" class="select" aria-label="To unit"></select>
-          </div>
-
-          <div class="row">
-            <button id="convertBtn" class="button" aria-label="Convert">Convert</button>
-            <button id="swapBtn" class="tab" title="Swap units">⇄ Swap</button>
-            <button id="saveFavBtn" class="tab" title="Save as favorite">★ Save</button>
-          </div>
-
-          <div id="resultBox" class="result" role="status" aria-live="polite"></div>
-          <p class="meta">Tip: use the arrow keys to open dropdowns. Temperature conversions support formulas.</p>
-        </div>
-      </section>
-
-      <div class="ad-slot ad-small mt-14" id="ad-right-under">Ad placeholder — Square/Rectangle (sidebar on desktop, under converter on mobile)</div>
-
-      <section class="card mt-14">
-        <h3 class="mt-6">Extra</h3>
-        <p class="meta">Recent conversions and favorites are saved in your browser (localStorage).</p>
-
-        <div class="flex-row gap-12 mt-10">
-          <div class="flex-1">
-            <strong>Recent</strong>
-            <div id="historyList" class="list" aria-live="polite"></div>
-          </div>
-          <div class="width-160">
-            <strong>Favorites</strong>
-            <div id="favList" class="list" aria-live="polite"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SEO-friendly About section -->
-      <section class="card mt-14" id="about">
-        <h2>About Free Units Converter</h2>
-        <p>
-          Free Units Converter helps you instantly convert units of <strong>length, weight, temperature, and volume</strong>.
-          Whether you need to switch from <em>meters to feet</em>, <em>kilograms to pounds</em>, or <em>Celsius to Fahrenheit</em>,
-          our converter is designed to be fast, accurate, and user-friendly.
+      <section class="hero" style="padding: 2rem 1rem; text-align: center; background-color: #f9f9f9; border-radius: 8px;">
+        <h1 class="title" style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Convert any unit instantly</h1>
+        <p class="subtitle" style="font-size: 1.1rem; margin-bottom: 1rem; color: #333;">
+          Simple · Fast · Accurate — Save favorites and view recent conversions
         </p>
-        <details>
-          <summary>Learn more</summary>
-          <p>
-            This free tool supports popular units like meter (m), kilometer (km), inch (in), foot (ft), yard (yd),
-            kilogram (kg), gram (g), pound (lb), ounce (oz), Celsius (°C), Fahrenheit (°F), Kelvin (K),
-            liter (L), and milliliter (mL).
-          </p>
-          <p>
-            Save your favorite conversions, track your history, and access everything instantly without registration.
-          </p>
-        </details>
+
+        <hr style="border: none; border-top: 5px solid #ccc; margin: 1.5rem auto; width: 150px;">
+
+        <p class="seo-text" style="font-size: 0.95rem; color: #555; line-height: 1.5; max-width: 700px; margin: 0 auto;">
+          Free Units Converter lets you quickly and accurately convert units of <strong>length, weight, temperature, and volume</strong>. 
+          Instantly convert <em>meters to feet, kilograms to pounds, liters to gallons, and Celsius to Fahrenheit</em>. 
+          Save your favorite conversions and review your recent calculations directly in your browser.
+        </p>
       </section>
+
+      <div class="card ad-slot" aria-hidden="true" id="ad-top">Ad placeholder — Top Banner</div>
+
+      <main class="main-grid">
+        <div>
+          <section class="card converter" aria-label="Converter">
+            <div class="tabs" id="categoryTabs" role="tablist" aria-label="Categories"></div>
+            <div id="converterArea">
+              <div class="row">
+                <input id="valueInput" class="input" type="text" inputmode="decimal" aria-label="Value to convert" placeholder="Enter a number (e.g. 100)">
+                <select id="fromSelect" class="select" aria-label="From unit"></select>
+                <select id="toSelect" class="select" aria-label="To unit"></select>
+              </div>
+
+              <div class="row">
+                <button id="convertBtn" class="button" aria-label="Convert">Convert</button>
+                <button id="swapBtn" class="tab" title="Swap units">⇄ Swap</button>
+                <button id="saveFavBtn" class="tab" title="Save as favorite">★ Save</button>
+              </div>
+
+              <div id="resultBox" class="result" role="status" aria-live="polite"></div>
+              <p class="meta">Tip: use the arrow keys to open dropdowns. Temperature conversions support formulas.</p>
+            </div>
+          </section>
+
+          <div class="ad-slot ad-small mt-14" id="ad-right-under">Ad placeholder — Square/Rectangle</div>
+
+          <section class="card mt-14">
+            <h3 class="mt-6">Extra</h3>
+            <p class="meta">Recent conversions and favorites are saved in your browser (localStorage).</p>
+
+            <div class="flex-row gap-12 mt-10">
+              <div class="flex-1">
+                <strong>Recent</strong>
+                <div id="historyList" class="list" aria-live="polite"></div>
+              </div>
+              <div class="width-160">
+                <strong>Favorites</strong>
+                <div id="favList" class="list" aria-live="polite"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card mt-14" id="about">
+            <h2>About Free Units Converter</h2>
+            <p>
+              Free Units Converter helps you instantly convert units of <strong>length, weight, temperature, and volume</strong>.
+              Whether you need to switch from <em>meters to feet</em>, <em>kilograms to pounds</em>, or <em>Celsius to Fahrenheit</em>,
+              our converter is designed to be fast, accurate, and user-friendly.
+            </p>
+            <details>
+              <summary>Learn more</summary>
+              <p>
+                This free tool supports popular units like meter (m), kilometer (km), inch (in), foot (ft), yard (yd),
+                kilogram (kg), gram (g), pound (lb), ounce (oz), Celsius (°C), Fahrenheit (°F), Kelvin (K),
+                liter (L), and milliliter (mL).
+              </p>
+              <p>
+                Save your favorite conversions, track your history, and access everything instantly without registration.
+              </p>
+            </details>
+          </section>
+        </div>
+
+        <aside>
+          <div class="card" id="categories">
+            <h4>Categories</h4>
+            <div id="categoryLinks" class="tabs"></div>
+            <div class="spacer-12"></div>
+            <div class="ad-slot">Ad placeholder — Sidebar</div>
+          </div>
+
+          <div class="spacer-14"></div>
+
+          <div class="card">
+            <h4>Quick tips</h4>
+            <ul>
+              <li>Use favorites for quick reuse</li>
+              <li>Shortcut keys: Enter = Convert</li>
+            </ul>
+          </div>
+        </aside>
+      </main>
+
+      <div class="card ad-slot" aria-hidden="true">Ad placeholder — Bottom Banner</div>
+
+      <footer>
+        <p>
+          © <span id="year"></span> Free Units Converter · 
+          <a href="#privacy">Privacy Policy</a> · 
+          <a href="#contact">Contact</a>
+        </p>
+        <p class="meta">
+          Convert units of length, weight, temperature, and volume online for free. 
+          Fast, accurate, and simple — perfect for students, professionals, and everyday use.
+        </p>
+      </footer>
     </div>
 
-    <!-- Right: Sidebar -->
-    <aside>
-      <div class="card" id="categories">
-        <h4>Categories</h4>
-        <div id="categoryLinks" class="tabs"></div>
-        <div class="spacer-12"></div>
-        <div class="ad-slot">Ad placeholder — Sidebar (160x600 or responsive)</div>
-      </div>
-
-      <div class="spacer-14"></div>
-
-      <div class="card">
-        <h4>Quick tips</h4>
-        <ul>
-          <li>Use favorites for quick reuse</li>
-          <li>Shortcut keys: Enter = Convert</li>
-        </ul>
-      </div>
-    </aside>
-  </main>
-
-  <div class="card ad-slot" aria-hidden="true">Ad placeholder — Bottom Banner</div>
-
-  <footer>
-    <p>
-      © <span id="year"></span> Free Units Converter · 
-      <a href="#privacy">Privacy Policy</a> · 
-      <a href="#contact">Contact</a>
-    </p>
-    <p class="meta">
-      Convert units of length, weight, temperature, and volume online for free. 
-      Fast, accurate, and simple — perfect for students, professionals, and everyday use.
-    </p>
-  </footer>
-</div>
-
-<script src="app.js"></script>
-</body>
+    <script src="app.js"></script>
+  </body>
 </html>
