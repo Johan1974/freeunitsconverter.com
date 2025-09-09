@@ -48,6 +48,12 @@ if [ ! -f "$CERT_PATH" ]; then
     docker compose rm -f nginx_http
 fi
 
+# --- Generate sitemap before building frontend ---
+echo "Generating sitemap..."
+cd frontend
+node generate-sitemap.js
+cd ..
+
 echo "Building and starting main Docker containers..."
 docker compose up -d --build frontend backend nginx
 

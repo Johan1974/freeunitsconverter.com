@@ -1,4 +1,5 @@
 
+
 services:
 
   frontend:
@@ -22,7 +23,6 @@ services:
       - ./certbot/conf:/etc/letsencrypt
     restart: unless-stopped
 
-
   nginx_http:
     image: nginx:latest
     container_name: freeunitsconverter_nginx_http
@@ -33,7 +33,6 @@ services:
       - "80:80"
     command: ["nginx", "-g", "daemon off;"]
     restart: "no"
-
 
   certbot:
     image: certbot/certbot

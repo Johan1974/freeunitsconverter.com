@@ -1,14 +1,8 @@
 /* ============================
-   CONFIG: add/extend converters
-   ============================
-   Each category has:
-   - id (used in URLs/keys)
-   - label
-   - units: either factors (relative to base unit) or function-based (for temp)
-     For simple factors: value_in_base = value * factor
-     For temp: specify type: 'temperature' and functions convertToBase and convertFromBase
-*/
-const CONVERTERS = [
+   CONFIG: converters
+   ============================ */
+
+   window.CONVERTERS = window.CONVERTERS || [
     {
       id: 'length',
       label: 'Length',
@@ -41,21 +35,9 @@ const CONVERTERS = [
       baseUnit: 'celsius',
       type: 'temperature',
       units: {
-        'celsius': {
-          toBase: v => v,
-          fromBase: v => v,
-          label: '°C'
-        },
-        'fahrenheit': {
-          toBase: v => (v - 32) * (5/9),
-          fromBase: v => v * (9/5) + 32,
-          label: '°F'
-        },
-        'kelvin': {
-          toBase: v => v - 273.15,
-          fromBase: v => v + 273.15,
-          label: 'K'
-        }
+        'celsius': { toBase:v=>v, fromBase:v=>v, label:'°C' },
+        'fahrenheit': { toBase:v=> (v-32)*(5/9), fromBase:v=>v*(9/5)+32, label:'°F' },
+        'kelvin': { toBase:v=>v-273.15, fromBase:v=>v+273.15, label:'K' }
       }
     },
     {
@@ -72,12 +54,14 @@ const CONVERTERS = [
     }
   ];
   
+  const CONVERTERS = window.CONVERTERS;
+  
   /* ---------- Utilities ---------- */
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
   const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
   const formatNumber = (n) => {
-    if (!isFinite(n)) return '—';
+    if (!isFinite(n)) return '—';   // en dash
     if (Math.abs(n) < 0.00001) return n.toExponential(4);
     return Number.parseFloat(Math.round(n * 1000000) / 1000000).toString();
   }
@@ -132,16 +116,69 @@ const CONVERTERS = [
   /* ---------- Activate category & populate units ---------- */
   function setActiveCategory(id){
     activeCategory = id;
+  
+    // Update tab UI
     $$('.tab').forEach(b => b.classList.remove('active'));
     const tabs = Array.from(tabsEl.children);
-    const idx = CONVERTERS.findIndex(c=>c.id===id);
+    const idx = CONVERTERS.findIndex(c => c.id === id);
     if (tabs[idx]) tabs[idx].classList.add('active');
   
-    const cat = CONVERTERS.find(c=>c.id===id);
+    // Populate units
+    const cat = CONVERTERS.find(c => c.id === id);
     populateUnitSelects(cat);
     resultBox.style.display = 'none';
+  
+    // Update virtual URL without reload
+    const virtualPath = '/' + id;
+    history.replaceState(null, cat.label, virtualPath);
+  
+    // Update <title>
+    document.title = `Free Units Converter — ${cat.label}`;
+  
+    // Update meta description
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = "description";
+        document.head.appendChild(metaDesc);
+    }
+    metaDesc.content = `Convert ${cat.label} units quickly and easily online with Free Units Converter.`;
+  
+    // Update canonical link
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+        canonical = document.createElement('link');
+        canonical.rel = 'canonical';
+        document.head.appendChild(canonical);
+    }
+    canonical.href = `https://freeunitsconverter.com${virtualPath}`;
+  
+    // Google Analytics / gtag.js virtual pageview
+    if (window.gtag) {
+        gtag('event', 'page_view', {
+            page_path: virtualPath,
+            page_title: cat.label
+        });
+    }
+  
+    // Structured data (JSON-LD)
+    let structured = document.getElementById('json-ld-category');
+    if (!structured) {
+        structured = document.createElement('script');
+        structured.type = 'application/ld+json';
+        structured.id = 'json-ld-category';
+        document.head.appendChild(structured);
+    }
+    structured.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": `Free Units Converter — ${cat.label}`,
+        "url": `https://freeunitsconverter.com${virtualPath}`,
+        "description": metaDesc.content
+    });
   }
   
+  /* ---------- Populate unit selects ---------- */
   function populateUnitSelects(cat){
     fromSelect.innerHTML = '';
     toSelect.innerHTML = '';
@@ -170,9 +207,9 @@ const CONVERTERS = [
   function convert(){
     const cat = CONVERTERS.find(c=>c.id===activeCategory);
     const raw = valueInput.value.trim();
-    if (!raw) { showResult('Voer een waarde in', false); return; }
+    if (!raw) { showResult('Enter a value', false); return; }
     const value = Number(raw.replace(',','.'));
-    if (Number.isNaN(value)){ showResult('Ongeldige waarde', false); return; }
+    if (Number.isNaN(value)){ showResult('Invalid value', false); return; }
   
     const from = fromSelect.value;
     const to = toSelect.value;
@@ -192,7 +229,7 @@ const CONVERTERS = [
   
     const fromFactor = cat.units[from];
     const toFactor = cat.units[to];
-    if (fromFactor == null || toFactor == null){ showResult('Eenheid niet ondersteund', false); return; }
+    if (fromFactor == null || toFactor == null){ showResult('Unit not supported', false); return; }
   
     const inBase = value * fromFactor;
     const out = inBase / toFactor;
@@ -217,13 +254,8 @@ const CONVERTERS = [
     resultBox.style.display = 'block';
     resultBox.textContent = message;
     resultBox.style.color = success ? 'var(--success)' : 'var(--text)';
-    if (success) {
-      resultBox.style.background = 'linear-gradient(90deg,#f3fff6,#eefbf0)';
-      resultBox.style.borderColor = '#e0f3e6';
-    } else {
-      resultBox.style.background = '#fff6f6';
-      resultBox.style.borderColor = '#f4d7d7';
-    }
+    resultBox.style.background = success ? 'linear-gradient(90deg,#f3fff6,#eefbf0)' : '#fff6f6';
+    resultBox.style.borderColor = success ? '#e0f3e6' : '#f4d7d7';
   }
   
   /* ---------- History & Favorites ---------- */
@@ -232,9 +264,10 @@ const CONVERTERS = [
     try{
       const s = localStorage.getItem(STORAGE_KEY);
       return s ? JSON.parse(s) : {history: [], favorites: []};
-    }catch(e){ return {history: [], favorites: []};}
+    }catch(e){ return {history: [], favorites: []}; }
   }
   function saveStore(obj){ localStorage.setItem(STORAGE_KEY, JSON.stringify(obj)); }
+  
   function pushHistory(entry){
     const s = loadStore();
     s.history = (s.history || []);
@@ -243,6 +276,7 @@ const CONVERTERS = [
     saveStore(s);
     renderHistory();
   }
+  
   function toggleFavorite(entry){
     const s = loadStore();
     s.favorites = s.favorites || [];
@@ -253,13 +287,14 @@ const CONVERTERS = [
     saveStore(s);
     renderFavorites();
   }
+  
   function favKey(e){ return `${e.cat}::${e.from}::${e.to}::${e.value||''}`; }
   
   function renderHistory(){
     const s = loadStore();
     const list = s.history || [];
     historyList.innerHTML = '';
-    if (!list.length) { historyList.innerHTML = '<div class="meta">Geen recente conversies.</div>'; return; }
+    if (!list.length) { historyList.innerHTML = '<div class="meta">No recent conversions.</div>'; return; }
     list.forEach(item=>{
       const btn = document.createElement('button');
       btn.innerHTML = `${formatNumber(item.value)} ${shortUnit(item.from)} → ${formatNumber(item.out)} ${shortUnit(item.to)} <span class="meta" style="display:block;font-size:12px">${new Date(item.ts).toLocaleString()}</span>`;
@@ -277,7 +312,7 @@ const CONVERTERS = [
     const s = loadStore();
     const list = s.favorites || [];
     favList.innerHTML = '';
-    if (!list.length) { favList.innerHTML = '<div class="meta">Geen favorieten.</div>'; return; }
+    if (!list.length) { favList.innerHTML = '<div class="meta">No favorites.</div>'; return; }
     list.forEach(item=>{
       const btn = document.createElement('button');
       btn.innerHTML = `<span>${shortUnit(item.from)} → ${shortUnit(item.to)}</span><span class="fav" title="toggle">★</span>`;
@@ -310,6 +345,35 @@ const CONVERTERS = [
       if (e.key === '1') setActiveCategory(CONVERTERS[0].id);
     });
   }
+
+  function loadGoogleAnalytics(measurementId) {
+    // create the script tag
+    const gaScript = document.createElement('script');
+    gaScript.async = true;
+    gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    document.head.appendChild(gaScript);
   
-  init();
+    // init gtag once script loads
+    gaScript.onload = () => {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag; // make globally available
   
+      gtag('js', new Date());
+      gtag('config', measurementId);
+      console.log(`Google Analytics ${measurementId} loaded`);
+    };
+  }
+  
+  
+  /* ---------- Initialize app ---------- */
+  document.addEventListener('DOMContentLoaded', () => {
+    init();
+
+      // only load in production
+    if (location.hostname === "freeunitsconverter.com") {
+      loadGoogleAnalytics("G-HX0YW2Z8WS"); 
+    }
+
+});
+

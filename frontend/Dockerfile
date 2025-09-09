@@ -1,22 +1,20 @@
-# Use the official Nginx lightweight image
+# Base Nginx image
 FROM nginx:alpine
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /usr/share/nginx/html
 
-# Remove default Nginx web files
+# Remove default files
 RUN rm -rf ./*
 
-# Copy frontend files into the container
-COPY index.html .
-COPY style.css .
-COPY app.js .
+# Copy static frontend files
+COPY . .
 
-# Optional: add a custom nginx config for caching/headers
-# (You can mount or copy this if needed)
-# COPY nginx-frontend.conf /etc/nginx/conf.d/default.conf
+# Copy custom Nginx config for SPA fallback
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose HTTP
+# Internal port only
 EXPOSE 80
 
-# Start Nginx (default CMD from nginx:alpine is fine)
+# Use default Nginx command
+CMD ["nginx", "-g", "daemon off;"]

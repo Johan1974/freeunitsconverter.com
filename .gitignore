@@ -1,24 +1,44 @@
+# -------------------
 # Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.env
-*.log
+# -------------------
+__pycache__/      # Python bytecode cache directories
+*.pyc             # Compiled Python files
+*.pyo             # Optimized Python files
+*.pyd             # Windows Python extension modules
+*.env             # Environment variables file (keep secrets out of git)
+*.log             # Python log files
 
+# -------------------
 # Node / frontend
-node_modules/
+# -------------------
+node_modules/     # Node dependencies (install via npm/yarn, don't commit)
+dist/             # Built frontend output
+build/            # Alternative build directory
 
+# -------------------
 # Docker
-*.pid
-*.env
-certbot/www/
-certbot/conf/accounts/
-certbot/conf/archive/
+# -------------------
+*.pid             # PID files created by Docker/containers
+*.env             # Environment variable files for Docker
+certbot/www/      # Let's Encrypt webroot files
+certbot/conf/accounts/  # Certbot account files
+certbot/conf/archive/   # Certbot certificate archive
 
+# -------------------
 # IDEs / editors
-.vscode/
-.idea/
-.DS_Store
+# -------------------
+.vscode/          # VSCode project settings
+.idea/            # JetBrains IDE project settings
+.DS_Store         # macOS Finder metadata files
 
+# -------------------
+# Temporary / swap files
+# -------------------
+*.swp             # Vim swap files
+*.tmp             # Generic temporary files
 
+# -------------------
+# Node debug / log files
+# -------------------
+*.log             # General log files
+npm-debug.log*    # npm debug log files
