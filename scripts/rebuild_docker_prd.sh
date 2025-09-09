@@ -1,14 +1,14 @@
 #!/bin/bash
 set -e
 
-clear
+
 echo "Stopping old production containers..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml down
 
 # Ensure Certbot challenge folder exists
 CERTBOT_WWW="./certbot/www"
 mkdir -p "$CERTBOT_WWW/.well-known/acme-challenge"
-chown -R $USER:$USER "$CERTBOT_WWW"
+# chown -R $USER:$USER "$CERTBOT_WWW"
 
 CERT_PATH="./certbot/conf/live/freeunitsconverter.com/fullchain.pem"
 if [ ! -f "$CERT_PATH" ]; then
