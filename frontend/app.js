@@ -1,9 +1,23 @@
-console.log("App.js loaded!");
-
 // -------------------------------
 // Global DOM references
 // -------------------------------
 let yearEl, tabsEl, categoryLinksEl, fromSelect, toSelect, valueInput, convertBtn, swapBtn, saveFavBtn, resultBox, historyList, favList;
+
+
+// -------------------------------
+// Google Analytics helper
+// -------------------------------
+function loadGoogleAnalytics(id) {
+  if (!id) return;
+  // Standard GA snippet
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = gtag; // expose globally
+  gtag('js', new Date());
+  gtag('config', id);
+}
+
+
 
 // -------------------------------
 // Config: converters
@@ -21,7 +35,12 @@ window.CONVERTERS = window.CONVERTERS || [
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
 const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
-const formatNumber = n => (!isFinite(n)?'—':Math.abs(n)<0.00001?n.toExponential(4):Number.parseFloat(Math.round(n*1000000)/1000000).toString());
+
+const formatNumber = n => {
+  if (n === null || n === undefined || !isFinite(n)) return '—';
+  return Math.abs(n) < 0.00001 ? n.toExponential(4) : (Math.round(n * 1000000) / 1000000).toString();
+};
+
 const humanLabel = key => key.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
 
 // -------------------------------
@@ -96,12 +115,24 @@ function bindUI() {
   saveFavBtn.addEventListener('click', saveFavorite);
 }
 
+// -------------------------------
+// SEO
+// -------------------------------
 function updateSEO(cat, virtualPath) {
+  if (!cat || !cat.label) return; // exit early if cat or label is undefined
+
   document.title = `Free Units Converter — ${cat.label}`;
   const desc = `Convert ${cat.label.toLowerCase()} quickly and accurately.`;
-  document.querySelector('#meta-description').setAttribute('content', desc);
-  document.querySelector('#canonical-link').setAttribute('href', 'https://freeunitsconverter.com' + virtualPath);
+  
+  const metaDesc = document.querySelector('#meta-description');
+  const canonicalLink = document.querySelector('#canonical-link');
+
+  if(metaDesc) metaDesc.setAttribute('content', desc);
+  if(canonicalLink) canonicalLink.setAttribute('href', 'https://freeunitsconverter.com' + (virtualPath || ''));
 }
+
+
+
 
 // -------------------------------
 // Conversion logic
@@ -183,18 +214,39 @@ function renderTabs() {
   });
 }
 
-function setActiveCategory(id){
-  activeCategory = id;
-  $$('.tab').forEach(b=>b.classList.remove('active'));
-  $$('.tab[data-route="/'+id+'"]').forEach(b=>b.classList.add('active'));
-  const cat = window.CONVERTERS.find(c=>c.id===id);
+// -------------------------------
+// Set active category
+// -------------------------------
+function setActiveCategory(id) {
+  if (!id) return console.warn('No category id provided');
+
+  // Remove any trailing slash
+  id = id.replace(/\/$/, '');
+
+  const cat = window.CONVERTERS.find(c => c.id === id);
+
+  if (!cat) {
+    console.warn('Category not found for id', id, '- falling back to first category');
+    activeCategory = window.CONVERTERS[0].id;
+    return setActiveCategory(activeCategory);
+  }
+
+  activeCategory = cat.id;
+
+  // Update tab UI
+  $$('.tab').forEach(b => b.classList.remove('active'));
+  $$('.tab[data-route="/' + cat.id + '"]').forEach(b => b.classList.add('active'));
+
   populateUnitSelects(cat);
-  resultBox.style.display='none';
-  const virtualPath = '/' + id;
+  resultBox.style.display = 'none';
+
+  const virtualPath = '/' + cat.id;
   history.replaceState(null, cat.label, virtualPath);
+
   updateSEO(cat, virtualPath);
   renderConverter();
 }
+
 
 function renderConverter(){
   if(!activeCategory){
@@ -208,17 +260,19 @@ function renderConverter(){
 // -------------------------------
 // Init on DOM ready
 // -------------------------------
+// -------------------------------
+// Init on DOM ready
+// -------------------------------
 function init() {
   yearEl.textContent = new Date().getFullYear();
   bindUI();
   renderTabs();
 
-  const route = location.pathname.slice(1);
+  let route = location.pathname.replace(/^\/|\/$/g, '');
   
-  if(route && window.CONVERTERS.some(c => c.id === route)) {
+  if (route && window.CONVERTERS.some(c => c.id === route)) {
     setActiveCategory(route);
   } else {
-    // No route? Pick the first category as default
     setActiveCategory(window.CONVERTERS[0].id);
   }
 
@@ -226,7 +280,10 @@ function init() {
   renderFavorites();
   renderConverter();
 
-  if(location.hostname==="freeunitsconverter.com") loadGoogleAnalytics("G-HX0YW2Z8WS");
+  // Only load GA on prod hostname
+  if(location.hostname === "freeunitsconverter.com") {
+    loadGoogleAnalytics("G-HX0YW2Z8WS");
+  }
 }
 
 
