@@ -3,6 +3,13 @@ set -e
 set -x   # Debug: prints every command as it runs
 
 # ---------------------------
+# 0️⃣ Generate static SEO pages & sitemap
+# ---------------------------
+echo "🔄 Generating static pages & sitemap..."
+docker run --rm -v $(pwd)/frontend:/app -w /app node:18 node generate-pages.js
+echo "✅ Static pages and sitemap generated."
+
+# ---------------------------
 # 1️⃣ Remove all old dev images first (keep only latest freeunitsconverter_dev-*)
 # ---------------------------
 echo "Removing old dev images (except latest freeunitsconverter_dev-* tags)..."

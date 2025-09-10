@@ -1,8 +1,498 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://freeunitsconverter.com/</loc><priority>1</priority></url>
-<url><loc>https://freeunitsconverter.com/length</loc><priority>0.8</priority></url>
-<url><loc>https://freeunitsconverter.com/weight</loc><priority>0.8</priority></url>
-<url><loc>https://freeunitsconverter.com/temperature</loc><priority>0.8</priority></url>
-<url><loc>https://freeunitsconverter.com/volume</loc><priority>0.8</priority></url>
+<url>
+  <loc>https://freeunitsconverter.com/</loc>
+  
+  <priority>1</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length</loc>
+  
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/millimeter-to-centimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/millimeter-to-meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/millimeter-to-kilometer</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/millimeter-to-inch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/millimeter-to-foot</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/millimeter-to-yard</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/millimeter-to-mile</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/centimeter-to-millimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/centimeter-to-meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/centimeter-to-kilometer</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/centimeter-to-inch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/centimeter-to-foot</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/centimeter-to-yard</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/centimeter-to-mile</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/meter-to-millimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/meter-to-centimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/meter-to-kilometer</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/meter-to-inch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/meter-to-foot</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/meter-to-yard</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/meter-to-mile</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/kilometer-to-millimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/kilometer-to-centimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/kilometer-to-meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/kilometer-to-inch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/kilometer-to-foot</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/kilometer-to-yard</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/kilometer-to-mile</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/inch-to-millimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/inch-to-centimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/inch-to-meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/inch-to-kilometer</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/inch-to-foot</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/inch-to-yard</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/inch-to-mile</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/foot-to-millimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/foot-to-centimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/foot-to-meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/foot-to-kilometer</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/foot-to-inch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/foot-to-yard</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/foot-to-mile</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/yard-to-millimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/yard-to-centimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/yard-to-meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/yard-to-kilometer</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/yard-to-inch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/yard-to-foot</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/yard-to-mile</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/mile-to-millimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/mile-to-centimeter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/mile-to-meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/mile-to-kilometer</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/mile-to-inch</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/mile-to-foot</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/length/mile-to-yard</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight</loc>
+  
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/gram-to-kilogram</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/gram-to-pound</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/gram-to-ounce</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/kilogram-to-gram</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/kilogram-to-pound</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/kilogram-to-ounce</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/pound-to-gram</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/pound-to-kilogram</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/pound-to-ounce</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/ounce-to-gram</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/ounce-to-kilogram</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/weight/ounce-to-pound</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/temperature</loc>
+  
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/temperature/celsius-to-fahrenheit</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/temperature/celsius-to-kelvin</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/temperature/fahrenheit-to-celsius</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/temperature/fahrenheit-to-kelvin</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/temperature/kelvin-to-celsius</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/temperature/kelvin-to-fahrenheit</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume</loc>
+  
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/milliliter-to-liter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/milliliter-to-cubic_meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/milliliter-to-gallon_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/milliliter-to-cup_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/liter-to-milliliter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/liter-to-cubic_meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/liter-to-gallon_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/liter-to-cup_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cubic_meter-to-milliliter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cubic_meter-to-liter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cubic_meter-to-gallon_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cubic_meter-to-cup_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/gallon_us-to-milliliter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/gallon_us-to-liter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/gallon_us-to-cubic_meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/gallon_us-to-cup_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cup_us-to-milliliter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cup_us-to-liter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cup_us-to-cubic_meter</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
+<url>
+  <loc>https://freeunitsconverter.com/volume/cup_us-to-gallon_us</loc>
+  <lastmod>2025-09-10</lastmod>
+  <priority>0.7</priority>
+</url>
 </urlset>
