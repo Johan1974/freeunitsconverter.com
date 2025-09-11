@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 function makeHtml(catId, catLabel, fromUnit, toUnit) {
   const prettyFrom = fromUnit.replace(/_/g, " ");
   const prettyTo = toUnit.replace(/_/g, " ");
@@ -19,6 +22,7 @@ function makeHtml(catId, catLabel, fromUnit, toUnit) {
     }
   };
 
+  // Only generate the full page for the unit converter itself
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -32,9 +36,26 @@ function makeHtml(catId, catLabel, fromUnit, toUnit) {
 </head>
 <body>
   <h1>${h1}</h1>
-  <p>Use this free tool to quickly convert ${prettyFrom} to ${prettyTo}. Accurate, simple, and always free.</p>
   <div id="app"></div>
   <script src="/app.js"></script>
 </body>
 </html>`;
 }
+
+// Example usage: generate all index.html files
+const categories = [
+  { id: 'length', label: 'Length', units: ['meter','foot','inch'] },
+  { id: 'weight', label: 'Weight', units: ['kilogram','pound','ounce'] },
+];
+
+categories.forEach(cat => {
+  cat.units.forEach(fromUnit => {
+    cat.units.forEach(toUnit => {
+      if(fromUnit === toUnit) return; // skip same unit
+      const folder = path.join(__dirname, 'static-pages', cat.id, `${fromUnit}-to-${toUnit}`);
+      fs.mkdirSync(folder, { recursive: true });
+      const html = makeHtml(cat.id, cat.label, fromUnit, toUnit);
+      fs.writeFileSync(path.join(folder, 'index.html'), html);
+    });
+  });
+});

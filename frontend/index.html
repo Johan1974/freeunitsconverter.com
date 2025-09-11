@@ -14,6 +14,17 @@
         "name": "Free Units Converter — Convert Length, Weight, Temperature & Volume"
       }
     </script>
+    <!-- MathJax configuration -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script id="MathJax-script" async 
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
   </head>
@@ -24,7 +35,7 @@
         <div class="logo">Free Units Converter</div>
         <nav aria-label="Main navigation">
           <a href="#categories">Categories</a>
-          <a href="#about">About</a>
+          <a href="#conversionGuide">Conversion Guide</a>
           <a href="#contact">Contact</a>
         </nav>
       </header>
@@ -44,10 +55,9 @@
         </p>
       </section>
 
-      <div class="card ad-slot" aria-hidden="true" id="ad-top">Ad placeholder — Top Banner</div>
-
       <main class="main-grid">
         <div>
+          <!-- Converter -->
           <section class="card converter" aria-label="Converter">
             <div class="tabs" id="categoryTabs" role="tablist" aria-label="Categories"></div>
             <div id="converterArea">
@@ -68,43 +78,14 @@
             </div>
           </section>
 
-          <div class="ad-slot ad-small mt-14" id="ad-right-under">Ad placeholder — Square/Rectangle</div>
-
-          <section class="card mt-14">
-            <h3 class="mt-6">Extra</h3>
-            <p class="meta">Recent conversions and favorites are saved in your browser (localStorage).</p>
-
-            <div class="flex-row gap-12 mt-10">
-              <div class="flex-1">
-                <strong>Recent</strong>
-                <div id="historyList" class="list" aria-live="polite"></div>
-              </div>
-              <div class="width-160">
-                <strong>Favorites</strong>
-                <div id="favList" class="list" aria-live="polite"></div>
-              </div>
+          <!-- Conversion Guide -->
+          <section class="card mt-14" id="conversionGuide">
+            <h2>Conversion Guide</h2>
+            <div id="guideContent">
+              <p>Select a category and units to see the conversion guide here.</p>
             </div>
           </section>
 
-          <section class="card mt-14" id="about">
-            <h2>About Free Units Converter</h2>
-            <p>
-              Free Units Converter helps you instantly convert units of <strong>length, weight, temperature, and volume</strong>.
-              Whether you need to switch from <em>meters to feet</em>, <em>kilograms to pounds</em>, or <em>Celsius to Fahrenheit</em>,
-              our converter is designed to be fast, accurate, and user-friendly.
-            </p>
-            <details>
-              <summary>Learn more</summary>
-              <p>
-                This free tool supports popular units like meter (m), kilometer (km), inch (in), foot (ft), yard (yd),
-                kilogram (kg), gram (g), pound (lb), ounce (oz), Celsius (°C), Fahrenheit (°F), Kelvin (K),
-                liter (L), and milliliter (mL).
-              </p>
-              <p>
-                Save your favorite conversions, track your history, and access everything instantly without registration.
-              </p>
-            </details>
-          </section>
         </div>
 
         <aside>
@@ -112,7 +93,6 @@
             <h4>Categories</h4>
             <div id="categoryLinks" class="tabs"></div>
             <div class="spacer-12"></div>
-            <div class="ad-slot">Ad placeholder — Sidebar</div>
           </div>
 
           <div class="spacer-14"></div>
@@ -124,10 +104,26 @@
               <li>Shortcut keys: Enter = Convert</li>
             </ul>
           </div>
+
+          <!-- Extra: History & Favorites -->
+          <section class="card mt-14">
+            <h3 class="mt-6">Extra</h3>
+            <p class="meta">Recent conversions and favorites are saved in your browser (localStorage).</p>
+            <div class="flex-row gap-12 mt-10">
+              <div class="flex-1">
+                <strong>Recent</strong>
+                <div id="historyList" class="list" aria-live="polite"></div>
+              </div>
+              <div class="width-160">
+                <strong>Favorites</strong>
+                <div id="favList" class="list" aria-live="polite" style="margin-top:1rem;"></div>
+                <button id="clearFavoritesBtn" style="margin-top:1rem;">Clear All Favorites</button>
+              </div>
+            </div>
+          </section>
+
         </aside>
       </main>
-
-      <div class="card ad-slot" aria-hidden="true">Ad placeholder — Bottom Banner</div>
 
       <footer>
         <p>
@@ -141,7 +137,7 @@
         </p>
       </footer>
     </div>
-    
+
     <script src="converters.js"></script>
     <script src="app.js"></script>
   </body>

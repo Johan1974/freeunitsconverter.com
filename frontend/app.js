@@ -1,15 +1,13 @@
 // -------------------------------
 // Global DOM references
 // -------------------------------
-let yearEl, tabsEl, categoryLinksEl, fromSelect, toSelect, valueInput, convertBtn, swapBtn, saveFavBtn, resultBox, historyList, favList;
-
+let yearEl, tabsEl, categoryLinksEl, fromSelect, toSelect, valueInput, convertBtn, swapBtn, saveFavBtn, resultBox, historyList, favList, guideContentEl;
 
 // -------------------------------
 // Google Analytics helper
 // -------------------------------
 function loadGoogleAnalytics(id) {
   if (!id) return;
-  // Standard GA snippet
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   window.gtag = gtag; // expose globally
@@ -17,12 +15,10 @@ function loadGoogleAnalytics(id) {
   gtag('config', id);
 }
 
-
-
 // -------------------------------
 // Config: converters
 // -------------------------------
-window.CONVERTERS = window.CONVERTERS || [
+window.CONVERTERS = [
   { id: 'length', label: 'Length', baseUnit: 'meter', units: { 'millimeter':0.001,'centimeter':0.01,'meter':1,'kilometer':1000,'inch':0.0254,'foot':0.3048,'yard':0.9144,'mile':1609.344 }},
   { id: 'weight', label: 'Weight', baseUnit: 'kilogram', units: { 'gram':0.001,'kilogram':1,'pound':0.45359237,'ounce':0.028349523125 }},
   { id: 'temperature', label: 'Temperature', baseUnit: 'celsius', type: 'temperature', units: { 'celsius':{toBase:v=>v,fromBase:v=>v,label:'°C'}, 'fahrenheit':{toBase:v=> (v-32)*(5/9),fromBase:v=>v*(9/5)+32,label:'°F'}, 'kelvin':{toBase:v=>v-273.15,fromBase:v=>v+273.15,label:'K'} }},
@@ -34,7 +30,6 @@ window.CONVERTERS = window.CONVERTERS || [
 // -------------------------------
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
-const clamp = (v,min,max) => Math.max(min,Math.min(max,v));
 
 const formatNumber = n => {
   if (n === null || n === undefined || !isFinite(n)) return '—';
@@ -49,7 +44,44 @@ const humanLabel = key => key.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase
 let activeCategory = null;
 
 // -------------------------------
-// Helper functions
+// Conversion Guide
+// -------------------------------
+async function loadConversionGuide(catId, fromUnit, toUnit) {
+  const guideContainer = document.getElementById('guideContent');
+  if (!guideContainer) return;
+
+  const snippetPath = `/static-pages/${catId}/${fromUnit}-to-${toUnit}/conversionguide.html`;
+  const defaultPath = `/conversionguide-default.html`;
+
+  try {
+    const resp = await fetch(snippetPath, {cache: "no-store"});
+    let html = await resp.text();
+
+    if (html.includes("<html")) throw new Error("Full page returned instead of snippet");
+
+    guideContainer.innerHTML = html;
+
+    // Trigger MathJax to render formulas
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      window.MathJax.typesetPromise([guideContainer]).catch(err => console.error(err.message));
+    }
+
+  } catch (err) {
+    const defaultResp = await fetch(defaultPath, {cache: "no-store"});
+    const defaultHtml = await defaultResp.text();
+    guideContainer.innerHTML = defaultHtml;
+
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      window.MathJax.typesetPromise([guideContainer]).catch(err => console.error(err.message));
+    }
+  }
+}
+
+
+
+
+// -------------------------------
+// Result / History / Favorites
 // -------------------------------
 function showResult(text, success=true) {
   resultBox.style.display = 'block';
@@ -58,9 +90,7 @@ function showResult(text, success=true) {
   resultBox.style.background = success ? '#f9f9f9' : '#fee';
 }
 
-function shortUnit(unit) {
-  return unit.replace(/_/g, ' ');
-}
+const shortUnit = unit => unit.replace(/_/g,' ');
 
 function pushHistory(entry) {
   const history = JSON.parse(localStorage.getItem('history') || '[]');
@@ -95,12 +125,39 @@ function saveFavorite() {
   showResult('Saved as favorite!');
 }
 
+function removeFavorite(index) {
+  const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+  if (index >= 0 && index < favs.length) {
+    favs.splice(index, 1); // remove the item
+    localStorage.setItem('favorites', JSON.stringify(favs));
+    renderFavorites();
+    showResult('Favorite removed');
+  }
+}
+
+
 function renderFavorites() {
   const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-  favList.innerHTML = favs.map(f => 
-    `<div>${formatNumber(f.value)} ${shortUnit(f.from)} → ${formatNumber(f.out)} ${shortUnit(f.to)}</div>`
+  
+  const clearBtn = document.getElementById('clearFavoritesBtn');
+  clearBtn.style.display = favs.length ? 'inline-block' : 'none';
+  
+  favList.innerHTML = favs.map((f, index) => 
+    `<div style="display:flex; justify-content:space-between; align-items:center;">
+      <span>${formatNumber(f.value)} ${shortUnit(f.from)} → ${formatNumber(f.out)} ${shortUnit(f.to)}</span>
+      <button data-index="${index}" class="removeFavBtn" style="margin-left:8px;">✖</button>
+    </div>`
   ).join('');
+
+  $$('.removeFavBtn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const idx = Number(e.target.dataset.index);
+      removeFavorite(idx);
+    });
+  });
 }
+
+
 
 function swapUnits() {
   const tmp = fromSelect.selectedIndex;
@@ -109,30 +166,27 @@ function swapUnits() {
   convert();
 }
 
-function bindUI() {
-  convertBtn.addEventListener('click', convert);
-  swapBtn.addEventListener('click', swapUnits);
-  saveFavBtn.addEventListener('click', saveFavorite);
-}
-
 // -------------------------------
-// SEO
+// Populate dropdowns
 // -------------------------------
-function updateSEO(cat, virtualPath) {
-  if (!cat || !cat.label) return; // exit early if cat or label is undefined
-
-  document.title = `Free Units Converter — ${cat.label}`;
-  const desc = `Convert ${cat.label.toLowerCase()} quickly and accurately.`;
-  
-  const metaDesc = document.querySelector('#meta-description');
-  const canonicalLink = document.querySelector('#canonical-link');
-
-  if(metaDesc) metaDesc.setAttribute('content', desc);
-  if(canonicalLink) canonicalLink.setAttribute('href', 'https://freeunitsconverter.com' + (virtualPath || ''));
+function populateUnitSelects(cat) {
+  fromSelect.innerHTML=''; toSelect.innerHTML='';
+  if(cat.type==='temperature') {
+    for(const [k,v] of Object.entries(cat.units)){
+      const optA = document.createElement('option'); optA.value=k; optA.textContent=k+(v.label?' '+v.label:'');
+      const optB = optA.cloneNode(true);
+      fromSelect.appendChild(optA); toSelect.appendChild(optB);
+    }
+  } else {
+    for(const key of Object.keys(cat.units)){
+      const optA = document.createElement('option'); optA.value=key; optA.textContent=humanLabel(key);
+      const optB = optA.cloneNode(true);
+      fromSelect.appendChild(optA); toSelect.appendChild(optB);
+    }
+  }
+  fromSelect.selectedIndex = 1<fromSelect.length?1:0;
+  toSelect.selectedIndex = 2<toSelect.length?2:(fromSelect.selectedIndex===0?1:0);
 }
-
-
-
 
 // -------------------------------
 // Conversion logic
@@ -163,28 +217,9 @@ function convert() {
 
   showResult(text,true);
   pushHistory({cat:cat.id, from, to, value, out, ts:Date.now()});
-}
-
-// -------------------------------
-// Populate dropdowns
-// -------------------------------
-function populateUnitSelects(cat) {
-  fromSelect.innerHTML=''; toSelect.innerHTML='';
-  if(cat.type==='temperature') {
-    for(const [k,v] of Object.entries(cat.units)){
-      const optA = document.createElement('option'); optA.value=k; optA.textContent=k+(v.label?' '+v.label:'');
-      const optB = optA.cloneNode(true);
-      fromSelect.appendChild(optA); toSelect.appendChild(optB);
-    }
-  } else {
-    for(const key of Object.keys(cat.units)){
-      const optA = document.createElement('option'); optA.value=key; optA.textContent=humanLabel(key);
-      const optB = optA.cloneNode(true);
-      fromSelect.appendChild(optA); toSelect.appendChild(optB);
-    }
-  }
-  fromSelect.selectedIndex = 1<fromSelect.length?1:0;
-  toSelect.selectedIndex = 2<toSelect.length?2:(fromSelect.selectedIndex===0?1:0);
+  
+  // Update conversion guide
+  loadConversionGuide(cat.id, from, to);
 }
 
 // -------------------------------
@@ -219,58 +254,64 @@ function renderTabs() {
 // -------------------------------
 function setActiveCategory(id) {
   if (!id) return console.warn('No category id provided');
-
-  // Remove any trailing slash
-  id = id.replace(/\/$/, '');
-
+  id = id.replace(/\/$/,'');
   const cat = window.CONVERTERS.find(c => c.id === id);
-
-  if (!cat) {
-    console.warn('Category not found for id', id, '- falling back to first category');
-    activeCategory = window.CONVERTERS[0].id;
-    return setActiveCategory(activeCategory);
-  }
-
+  if(!cat){ activeCategory = window.CONVERTERS[0].id; return setActiveCategory(activeCategory); }
+  
   activeCategory = cat.id;
-
-  // Update tab UI
   $$('.tab').forEach(b => b.classList.remove('active'));
-  $$('.tab[data-route="/' + cat.id + '"]').forEach(b => b.classList.add('active'));
+  $$('.tab[data-route="/'+cat.id+'"]').forEach(b => b.classList.add('active'));
 
   populateUnitSelects(cat);
-  resultBox.style.display = 'none';
-
-  const virtualPath = '/' + cat.id;
-  history.replaceState(null, cat.label, virtualPath);
-
-  updateSEO(cat, virtualPath);
+  resultBox.style.display='none';
   renderConverter();
 }
 
-
-function renderConverter(){
-  if(!activeCategory){
-    resultBox.style.display='block';
-    resultBox.textContent = "Select a category to start converting units!";
-    resultBox.style.color='var(--text)';
-    resultBox.style.background='#f9f9f9';
-  }
+// -------------------------------
+// SEO
+// -------------------------------
+function updateSEO(cat, virtualPath) {
+  if(!cat || !cat.label) return;
+  document.title = `Free Units Converter — ${cat.label}`;
+  const desc = `Convert ${cat.label.toLowerCase()} quickly and accurately.`;
+  const metaDesc = document.querySelector('#meta-description');
+  const canonicalLink = document.querySelector('#canonical-link');
+  if(metaDesc) metaDesc.setAttribute('content', desc);
+  if(canonicalLink) canonicalLink.setAttribute('href', 'https://freeunitsconverter.com' + (virtualPath||''));
 }
 
 // -------------------------------
-// Init on DOM ready
+// Init
 // -------------------------------
-// -------------------------------
-// Init on DOM ready
-// -------------------------------
+async function renderConverter(){
+  const defaultPath = `/conversionguide-default.html`;
+  try {
+    const resp = await fetch(defaultPath, {cache: "no-store"});
+    const html = await resp.text();
+    guideContentEl.innerHTML = html;
+  } catch(err) {
+    // fallback in case the file can't be loaded
+    guideContentEl.innerHTML = "<p>Welcome to the Free Units Converter! Start by selecting a category and units.</p>";
+  }
+}
+
+
+function bindUI() {
+  convertBtn.addEventListener('click', convert);
+  swapBtn.addEventListener('click', swapUnits);
+  saveFavBtn.addEventListener('click', saveFavorite);
+
+  fromSelect.addEventListener('change', ()=>{ loadConversionGuide(activeCategory, fromSelect.value, toSelect.value); });
+  toSelect.addEventListener('change', ()=>{ loadConversionGuide(activeCategory, fromSelect.value, toSelect.value); });
+}
+
 function init() {
   yearEl.textContent = new Date().getFullYear();
   bindUI();
   renderTabs();
 
-  let route = location.pathname.replace(/^\/|\/$/g, '');
-  
-  if (route && window.CONVERTERS.some(c => c.id === route)) {
+  let route = location.pathname.replace(/^\/|\/$/g,'');
+  if(route && window.CONVERTERS.some(c=>c.id===route)){
     setActiveCategory(route);
   } else {
     setActiveCategory(window.CONVERTERS[0].id);
@@ -280,15 +321,12 @@ function init() {
   renderFavorites();
   renderConverter();
 
-  // Only load GA on prod hostname
-  if(location.hostname === "freeunitsconverter.com") {
+  if(location.hostname==="freeunitsconverter.com"){
     loadGoogleAnalytics("G-HX0YW2Z8WS");
   }
 }
 
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Grab all DOM elements globally
+document.addEventListener('DOMContentLoaded', ()=>{
   yearEl = document.getElementById('year');
   tabsEl = document.getElementById('categoryTabs');
   categoryLinksEl = document.getElementById('categoryLinks');
@@ -301,6 +339,15 @@ document.addEventListener('DOMContentLoaded', () => {
   resultBox = document.getElementById('resultBox');
   historyList = document.getElementById('historyList');
   favList = document.getElementById('favList');
+  guideContentEl = document.getElementById('guideContent');
+  document.getElementById('clearFavoritesBtn').addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all favorites?')) {
+      localStorage.removeItem('favorites');
+      renderFavorites();
+      showResult('All favorites cleared');
+    }
+  });
+  
 
   init();
 });
