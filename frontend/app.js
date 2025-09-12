@@ -101,10 +101,27 @@ function pushHistory(entry) {
 
 function renderHistory() {
   const history = JSON.parse(localStorage.getItem('history') || '[]');
-  historyList.innerHTML = history.map(h => 
-    `<div>${formatNumber(h.value)} ${shortUnit(h.from)} → ${formatNumber(h.out)} ${shortUnit(h.to)}</div>`
-  ).join('');
+  if (!historyList) return;
+
+  historyList.innerHTML = history.map((h, i) => `
+    <div class="item-row">
+      <span>${formatNumber(h.value)} ${shortUnit(h.from)} → ${formatNumber(h.out)} ${shortUnit(h.to)}</span>
+      <button class="remove-btn" data-index="${i}" aria-label="Remove item">&times;</button>
+    </div>
+  `).join('');
+
+  historyList.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const idx = Number(e.target.dataset.index);
+      history.splice(idx, 1);
+      localStorage.setItem('history', JSON.stringify(history));
+      renderHistory();
+      e.stopPropagation();
+    });
+  });
 }
+
+
 
 function saveFavorite() {
   if(!activeCategory) return showResult('Select a category first', false);
@@ -138,24 +155,26 @@ function removeFavorite(index) {
 
 function renderFavorites() {
   const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-  
-  const clearBtn = document.getElementById('clearFavoritesBtn');
-  clearBtn.style.display = favs.length ? 'inline-block' : 'none';
-  
-  favList.innerHTML = favs.map((f, index) => 
-    `<div style="display:flex; justify-content:space-between; align-items:center;">
-      <span>${formatNumber(f.value)} ${shortUnit(f.from)} → ${formatNumber(f.out)} ${shortUnit(f.to)}</span>
-      <button data-index="${index}" class="removeFavBtn" style="margin-left:8px;">✖</button>
-    </div>`
-  ).join('');
+  if (!favList) return;
 
-  $$('.removeFavBtn').forEach(btn => {
+  favList.innerHTML = favs.map((f, i) => `
+    <div class="item-row">
+      <span>${formatNumber(f.value)} ${shortUnit(f.from)} → ${formatNumber(f.out)} ${shortUnit(f.to)}</span>
+      <button class="remove-btn" data-index="${i}" aria-label="Remove favorite">&times;</button>
+    </div>
+  `).join('');
+
+  favList.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       const idx = Number(e.target.dataset.index);
-      removeFavorite(idx);
+      favs.splice(idx, 1);
+      localStorage.setItem('favorites', JSON.stringify(favs));
+      renderFavorites();
+      e.stopPropagation();
     });
   });
 }
+
 
 
 

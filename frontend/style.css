@@ -162,3 +162,8 @@
   .flex-row { display: flex; }
   .gap-12 { gap: 12px; }
   
+
+  #categories {
+    display: none !important;
+  }
+    
