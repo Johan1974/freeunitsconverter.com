@@ -46,3 +46,16 @@ echo "Building and starting production containers..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml up -d --build frontend backend nginx
 
 echo "✅ Production environment is up with HTTPS enabled."
+
+
+echo "🔍 Verifying compression..."
+
+# Test Brotli
+BROTLI_CHECK=$(curl -s -I -H "Accept-Encoding: br" https://freeunitsconverter.com | grep -i "Content-Encoding")
+echo "Brotli test headers: $BROTLI_CHECK"
+
+# Test Gzip
+GZIP_CHECK=$(curl -s -I -H "Accept-Encoding: gzip" https://freeunitsconverter.com | grep -i "Content-Encoding")
+echo "Gzip test headers: $GZIP_CHECK"
+
+echo "✅ Compression verification complete."

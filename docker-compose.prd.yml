@@ -15,7 +15,8 @@ services:
     restart: unless-stopped
 
   nginx:
-    image: nginx:latest
+    # image: nginx:latest
+    image: fholzer/nginx-brotli:latest
     container_name: freeunitsconverter_prd-nginx
     ports:
       - "443:443"
@@ -26,7 +27,8 @@ services:
     restart: unless-stopped
 
   nginx_http:
-    image: nginx:latest
+    # image: nginx:latest
+    image: fholzer/nginx-brotli:latest
     container_name: freeunitsconverter_prd-nginx_http
     volumes:
       - ./nginx/http_only.conf:/etc/nginx/conf.d/default.conf:ro
