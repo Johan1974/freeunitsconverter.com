@@ -7,13 +7,12 @@ let yearEl, tabsEl, categoryLinksEl, fromSelect, toSelect, valueInput, convertBt
 // Google Analytics helper
 // -------------------------------
 function loadGoogleAnalytics(id) {
-  // Skip GA if running locally or if no ID is provided
-  if (location.hostname === "localhost" || !id) {
-    console.log("Google Analytics skipped (localhost or missing ID)");
+  if (!id) {
+    console.log("Google Analytics skipped: missing ID");
     return;
   }
 
-  // Inject the GA script
+  // Inject GA script
   const script = document.createElement("script");
   script.async = true;
   script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
@@ -24,9 +23,14 @@ function loadGoogleAnalytics(id) {
   function gtag() { window.dataLayer.push(arguments); }
   window.gtag = gtag;
 
+  const debug = location.search.includes("debug_mode=true");
   gtag("js", new Date());
-  gtag("config", id);
+  gtag("config", id, { debug_mode: debug });
+
+  console.log("GA4 initialized", { id, debug_mode: debug });
 }
+
+
 
 
 
@@ -313,18 +317,20 @@ function populateUnitSelects(cat) {
 // Conversion logic
 // -------------------------------
 function convert() {
-  if(!activeCategory) { showResult('Select a category first', false); return; }
+  if (!activeCategory) { showResult('Select a category first', false); return; }
+
   const cat = window.CONVERTERS.find(c => c.id === activeCategory);
   const raw = valueInput.value.trim();
-  if(!raw){ showResult('Enter a value', false); return; }
-  const value = Number(raw.replace(',','.'));
-  if(Number.isNaN(value)){ showResult('Invalid value', false); return; }
+  if (!raw) { showResult('Enter a value', false); return; }
+
+  const value = Number(raw.replace(',', '.'));
+  if (Number.isNaN(value)) { showResult('Invalid value', false); return; }
 
   const from = fromSelect.value;
   const to = toSelect.value;
 
   let out, text;
-  if(cat.type === 'temperature') {
+  if (cat.type === 'temperature') {
     const fromDef = cat.units[from], toDef = cat.units[to];
     const base = fromDef.toBase(value);
     out = toDef.fromBase(base);
@@ -337,11 +343,23 @@ function convert() {
   }
 
   showResult(text,true);
-  pushHistory({cat:cat.id, from, to, value, out, ts:Date.now()});
-  
-  // Update conversion guide immediately
+  pushHistory({ cat: cat.id, from, to, value, out, ts: Date.now() });
+
+  // Update conversion guide
   loadConversionGuide(cat.id, from, to);
+
+  // Send GA4 event
+  if (typeof gtag === "function") {
+    const debug = location.search.includes("debug_mode=true");
+    console.log("Sending GA4 event:", from + "→" + to);
+    gtag("event", "unit_combo", {
+      unit_combo: `${from}→${to}`,
+      debug_mode: debug
+    });
+  }
 }
+
+
 
 // -------------------------------
 // Category tabs
