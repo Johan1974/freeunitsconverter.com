@@ -7,13 +7,28 @@ let yearEl, tabsEl, categoryLinksEl, fromSelect, toSelect, valueInput, convertBt
 // Google Analytics helper
 // -------------------------------
 function loadGoogleAnalytics(id) {
-  if (!id) return;
+  // Skip GA if running locally or if no ID is provided
+  if (location.hostname === "localhost" || !id) {
+    console.log("Google Analytics skipped (localhost or missing ID)");
+    return;
+  }
+
+  // Inject the GA script
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+  document.head.appendChild(script);
+
+  // Set up gtag
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  window.gtag = gtag; 
-  gtag('js', new Date());
-  gtag('config', id);
+  function gtag() { window.dataLayer.push(arguments); }
+  window.gtag = gtag;
+
+  gtag("js", new Date());
+  gtag("config", id);
 }
+
+
 
 // -------------------------------
 // Config: converters
