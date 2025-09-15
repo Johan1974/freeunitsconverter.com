@@ -1,44 +1,36 @@
-# -------------------
-# Python
-# -------------------
-__pycache__/      # Python bytecode cache directories
-*.pyc             # Compiled Python files
-*.pyo             # Optimized Python files
-*.pyd             # Windows Python extension modules
-*.env             # Environment variables file (keep secrets out of git)
-*.log             # Python log files
+# Ignore environment variable files
+.env
 
-# -------------------
-# Node / frontend
-# -------------------
-node_modules/     # Node dependencies (install via npm/yarn, don't commit)
-dist/             # Built frontend output
-build/            # Alternative build directory
+# Ignore Python bytecode cache directories
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# -------------------
-# Docker
-# -------------------
-*.pid             # PID files created by Docker/containers
-*.env             # Environment variable files for Docker
-certbot/www/      # Let's Encrypt webroot files
-certbot/conf/accounts/  # Certbot account files
-certbot/conf/archive/   # Certbot certificate archive
+# Ignore log files
+*.log
 
-# -------------------
-# IDEs / editors
-# -------------------
-.vscode/          # VSCode project settings
-.idea/            # JetBrains IDE project settings
-.DS_Store         # macOS Finder metadata files
+# Ignore Node.js dependencies and build directories
+node_modules/
+dist/
+build/
 
-# -------------------
-# Temporary / swap files
-# -------------------
-*.swp             # Vim swap files
-*.tmp             # Generic temporary files
+# Ignore Docker PID files and Certbot directories
+*.pid
+certbot/www/
+certbot/conf/accounts/
+certbot/conf/archive/
 
-# -------------------
-# Node debug / log files
-# -------------------
-*.log             # General log files
-npm-debug.log*    # npm debug log files
+# Ignore IDE/editor configuration directories
+.vscode/
+.idea/
+
+# Ignore system files
+.DS_Store
+
+# Ignore temporary or swap files
+*.swp
+*.tmp
+
+# Ignore Node.js debug or log files
+npm-debug.log*

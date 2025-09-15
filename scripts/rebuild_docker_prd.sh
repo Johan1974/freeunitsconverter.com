@@ -44,18 +44,30 @@ echo "✅ Static pages and sitemap generated."
 # ---------------------------
 echo "Building and starting production containers..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml up -d --build frontend backend nginx
-
 echo "✅ Production environment is up with HTTPS enabled."
 
-
+# ---------------------------
+# 3️⃣ Verify compression
+# ---------------------------
 echo "🔍 Verifying compression..."
 
-# Test Brotli
 BROTLI_CHECK=$(curl -s -I -H "Accept-Encoding: br" https://freeunitsconverter.com | grep -i "Content-Encoding")
 echo "Brotli test headers: $BROTLI_CHECK"
 
-# Test Gzip
 GZIP_CHECK=$(curl -s -I -H "Accept-Encoding: gzip" https://freeunitsconverter.com | grep -i "Content-Encoding")
 echo "Gzip test headers: $GZIP_CHECK"
 
 echo "✅ Compression verification complete."
+
+# ---------------------------
+# 4️⃣ Remove old SEO audit container if exists
+# ---------------------------
+echo "🔄 Removing old SEO audit container if exists..."
+docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml rm -sf seo_audit
+
+# ---------------------------
+# 5️⃣ Build and start SEO audit container
+# ---------------------------
+echo "Building and starting SEO audit container..."
+docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml up -d --build seo_audit
+echo "✅ SEO audit container is up."
