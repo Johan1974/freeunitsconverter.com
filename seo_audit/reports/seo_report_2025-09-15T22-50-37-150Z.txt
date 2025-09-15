@@ -1,0 +1,116 @@
+SEO Audit Report for https://freeunitsconverter.com
+Generated: Mon Sep 15 2025 22:50:37 GMT+0000 (Coordinated Universal Time)
+
+✅ Page loaded successfully: 200
+⏱ Page size: 6.29 KB
+🔍 Title tag present: Yes
+🖼 Images with alt tags: N/A (no images found)
+📄 Number of H1 tags: 1
+
+📌 Daily SEO Task List (Grouped by Priority):
+
+=== MEDIUM Priority ===
+- [❌ Pending] Missing index.html in folder: length
+- [❌ Pending] Missing conversionguide.html in folder: length
+- [❌ Pending] Missing conversionguide.html in folder: length/centimeter-to-foot
+- [❌ Pending] Missing conversionguide.html in folder: length/centimeter-to-inch
+- [❌ Pending] Missing conversionguide.html in folder: length/centimeter-to-kilometer
+- [❌ Pending] Missing conversionguide.html in folder: length/centimeter-to-meter
+- [❌ Pending] Missing conversionguide.html in folder: length/centimeter-to-mile
+- [❌ Pending] Missing conversionguide.html in folder: length/centimeter-to-millimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/centimeter-to-yard
+- [❌ Pending] Missing conversionguide.html in folder: length/foot-to-centimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/foot-to-inch
+- [❌ Pending] Missing conversionguide.html in folder: length/foot-to-kilometer
+- [❌ Pending] Missing conversionguide.html in folder: length/foot-to-meter
+- [❌ Pending] Missing conversionguide.html in folder: length/foot-to-mile
+- [❌ Pending] Missing conversionguide.html in folder: length/foot-to-millimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/foot-to-yard
+- [❌ Pending] Missing conversionguide.html in folder: length/inch-to-centimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/inch-to-foot
+- [❌ Pending] Missing conversionguide.html in folder: length/inch-to-kilometer
+- [❌ Pending] Missing conversionguide.html in folder: length/inch-to-meter
+- [❌ Pending] Missing conversionguide.html in folder: length/inch-to-mile
+- [❌ Pending] Missing conversionguide.html in folder: length/inch-to-millimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/inch-to-yard
+- [❌ Pending] Missing conversionguide.html in folder: length/kilometer-to-centimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/kilometer-to-foot
+- [❌ Pending] Missing conversionguide.html in folder: length/kilometer-to-inch
+- [❌ Pending] Missing conversionguide.html in folder: length/kilometer-to-meter
+- [❌ Pending] Missing conversionguide.html in folder: length/kilometer-to-millimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/kilometer-to-yard
+- [❌ Pending] Missing conversionguide.html in folder: length/meter-to-centimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/meter-to-inch
+- [❌ Pending] Missing conversionguide.html in folder: length/meter-to-kilometer
+- [❌ Pending] Missing conversionguide.html in folder: length/meter-to-mile
+- [❌ Pending] Missing conversionguide.html in folder: length/meter-to-millimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/meter-to-yard
+- [❌ Pending] Missing conversionguide.html in folder: length/mile-to-centimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/mile-to-foot
+- [❌ Pending] Missing conversionguide.html in folder: length/mile-to-inch
+- [❌ Pending] Missing conversionguide.html in folder: length/mile-to-meter
+- [❌ Pending] Missing conversionguide.html in folder: length/mile-to-millimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/mile-to-yard
+- [❌ Pending] Missing conversionguide.html in folder: length/millimeter-to-centimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/millimeter-to-foot
+- [❌ Pending] Missing conversionguide.html in folder: length/millimeter-to-inch
+- [❌ Pending] Missing conversionguide.html in folder: length/millimeter-to-kilometer
+- [❌ Pending] Missing conversionguide.html in folder: length/millimeter-to-meter
+- [❌ Pending] Missing conversionguide.html in folder: length/millimeter-to-mile
+- [❌ Pending] Missing conversionguide.html in folder: length/millimeter-to-yard
+- [❌ Pending] Missing conversionguide.html in folder: length/yard-to-centimeter
+- [❌ Pending] Missing conversionguide.html in folder: length/yard-to-foot
+- [❌ Pending] Missing conversionguide.html in folder: length/yard-to-inch
+- [❌ Pending] Missing conversionguide.html in folder: length/yard-to-kilometer
+- [❌ Pending] Missing conversionguide.html in folder: length/yard-to-meter
+- [❌ Pending] Missing conversionguide.html in folder: length/yard-to-mile
+- [❌ Pending] Missing conversionguide.html in folder: length/yard-to-millimeter
+- [❌ Pending] Missing index.html in folder: temperature
+- [❌ Pending] Missing conversionguide.html in folder: temperature
+- [❌ Pending] Missing conversionguide.html in folder: temperature/celsius-to-kelvin
+- [❌ Pending] Missing conversionguide.html in folder: temperature/fahrenheit-to-kelvin
+- [❌ Pending] Missing conversionguide.html in folder: temperature/kelvin-to-celsius
+- [❌ Pending] Missing conversionguide.html in folder: temperature/kelvin-to-fahrenheit
+- [❌ Pending] Missing index.html in folder: volume
+- [❌ Pending] Missing conversionguide.html in folder: volume
+- [❌ Pending] Missing conversionguide.html in folder: volume/cubic_meter-to-cup_us
+- [❌ Pending] Missing conversionguide.html in folder: volume/cubic_meter-to-gallon_us
+- [❌ Pending] Missing conversionguide.html in folder: volume/cubic_meter-to-liter
+- [❌ Pending] Missing conversionguide.html in folder: volume/cubic_meter-to-milliliter
+- [❌ Pending] Missing conversionguide.html in folder: volume/cup_us-to-cubic_meter
+- [❌ Pending] Missing conversionguide.html in folder: volume/cup_us-to-gallon_us
+- [❌ Pending] Missing conversionguide.html in folder: volume/cup_us-to-liter
+- [❌ Pending] Missing conversionguide.html in folder: volume/gallon_us-to-cubic_meter
+- [❌ Pending] Missing conversionguide.html in folder: volume/gallon_us-to-cup_us
+- [❌ Pending] Missing conversionguide.html in folder: volume/gallon_us-to-liter
+- [❌ Pending] Missing conversionguide.html in folder: volume/gallon_us-to-milliliter
+- [❌ Pending] Missing conversionguide.html in folder: volume/liter-to-cubic_meter
+- [❌ Pending] Missing conversionguide.html in folder: volume/liter-to-cup_us
+- [❌ Pending] Missing conversionguide.html in folder: volume/liter-to-milliliter
+- [❌ Pending] Missing conversionguide.html in folder: volume/milliliter-to-cubic_meter
+- [❌ Pending] Missing conversionguide.html in folder: volume/milliliter-to-gallon_us
+- [❌ Pending] Missing conversionguide.html in folder: volume/milliliter-to-liter
+- [❌ Pending] Missing index.html in folder: weight
+- [❌ Pending] Missing conversionguide.html in folder: weight
+- [❌ Pending] Missing conversionguide.html in folder: weight/gram-to-kilogram
+- [❌ Pending] Missing conversionguide.html in folder: weight/gram-to-ounce
+- [❌ Pending] Missing conversionguide.html in folder: weight/gram-to-pound
+- [❌ Pending] Missing conversionguide.html in folder: weight/kilogram-to-gram
+- [❌ Pending] Missing conversionguide.html in folder: weight/kilogram-to-ounce
+- [❌ Pending] Missing conversionguide.html in folder: weight/ounce-to-gram
+- [❌ Pending] Missing conversionguide.html in folder: weight/ounce-to-kilogram
+- [❌ Pending] Missing conversionguide.html in folder: weight/ounce-to-pound
+- [❌ Pending] Missing conversionguide.html in folder: weight/pound-to-gram
+- [❌ Pending] Missing conversionguide.html in folder: weight/pound-to-kilogram
+- [❌ Pending] Missing conversionguide.html in folder: weight/pound-to-ounce
+
+=== LOW Priority ===
+- [❌ Pending] Consider adding at least one branded logo image with alt text for SEO.
+- [❌ Pending] Submit a sitemap to Google Search Console.
+❌ Error running PageSpeed Insights: Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.
+
+🔗 Checking for broken links...
+✅ Broken link scan complete.
+
+✅ Sitemap accessible: 200
+✅ robots.txt accessible: 200

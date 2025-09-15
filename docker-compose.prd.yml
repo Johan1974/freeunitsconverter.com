@@ -55,6 +55,7 @@ services:
       - EMAIL_PASS=${EMAIL_PASS}  # make sure you set this in .env
     volumes:
       - ./seo_audit/reports:/usr/src/app/reports
+      - ./frontend/static-pages:/usr/src/app/static-pages:ro
     restart: unless-stopped
     command: >
       sh -c "while true; do

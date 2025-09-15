@@ -1,0 +1,22 @@
+SEO Audit Report for https://freeunitsconverter.com
+Generated: Mon Sep 15 2025 22:41:32 GMT+0000 (Coordinated Universal Time)
+
+✅ Page loaded successfully: 200
+⏱ Page size: 6.29 KB
+🔍 Title tag present: Yes
+🖼 Images with alt tags: N/A (no images found)
+📄 Number of H1 tags: 1
+❌ Static pages folder not found at /usr/src/frontend/static-pages
+
+📌 Daily SEO Task List (Grouped by Priority):
+
+=== LOW Priority ===
+- [❌ Pending] Consider adding at least one branded logo image with alt text for SEO.
+- [❌ Pending] Submit a sitemap to Google Search Console.
+❌ Error running PageSpeed Insights: Quota exceeded for quota metric 'Queries' and limit 'Queries per day' of service 'pagespeedonline.googleapis.com' for consumer 'project_number:583797351490'.
+
+🔗 Checking for broken links...
+✅ Broken link scan complete.
+
+✅ Sitemap accessible: 200
+✅ robots.txt accessible: 200
