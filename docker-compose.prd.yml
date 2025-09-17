@@ -51,18 +51,15 @@ services:
       context: ./seo_audit
       dockerfile: Dockerfile
     container_name: freeunitsconverter_prd-seo_audit
-    environment:
-      - EMAIL_PASS=${EMAIL_PASS}  # make sure you set this in .env
+    environment:   # make sure you set this in .env
+      - EMAIL_PASS=${EMAIL_PASS}  
+      - GA_PROPERTY_ID=${GA_PROPERTY_ID} 
+      - GA_TAG_ID=${GA_TAG_ID}  # optional, if you added it to .env
     volumes:
-      - ./seo_audit/reports:/usr/src/app/reports
       - ./frontend/static-pages:/usr/src/app/static-pages:ro
     restart: unless-stopped
-    command: >
-      sh -c "while true; do
-        node run_audit.js;
-        echo 'Waiting 24h until next audit...';
-        sleep 86400;
-      done"
+    command: ["node", "run_audit.js"]
+
 
 
 

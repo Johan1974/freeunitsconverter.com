@@ -34,3 +34,6 @@ certbot/conf/archive/
 
 # Ignore Node.js debug or log files
 npm-debug.log*
+
+# google Analytics API
+ga-key.json
