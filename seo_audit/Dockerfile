@@ -2,13 +2,13 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json first
 COPY package*.json ./
 
-# Install dependencies
+# Install dependencies (including node-schedule added in package.json)
 RUN npm install
 
-# Copy only the contents of seo_audit folder (script, helpers)
+# Copy the rest of your SEO audit code
 COPY . .
 
 # Run Node script

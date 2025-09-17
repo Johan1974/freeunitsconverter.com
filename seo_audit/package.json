@@ -2,21 +2,24 @@
   "name": "seo-audit-agent",
   "version": "1.0.0",
   "description": "Daily SEO audit for Free Units Converter",
-  "type": "module",        
+  "type": "module",
   "main": "run_audit.js",
   "scripts": {
     "start": "node run_audit.js"
   },
   "dependencies": {
-    "psi": "^4.1.0",
-    "puppeteer": "^23.0.0",
+    "@google-analytics/data": "^5.2.0",
     "axios": "^1.5.0",
-    "cheerio": "^1.0.0-rc.12",
-    "nodemailer": "^7.0.0",
     "broken-link-checker": "^0.7.2",
+    "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.0.0",
     "luxon": "^3.4.4",
+    "moment-timezone": "^0.6.0",
     "node-cron": "^3.0.2",
-    "@google-analytics/data": "^5.2.0"
+    "node-schedule": "^2.1.1",
+    "nodemailer": "^7.0.0",
+    "psi": "^4.1.0",
+    "puppeteer": "^23.0.0",
+    "xml2js": "^0.6.2"
   }
 }

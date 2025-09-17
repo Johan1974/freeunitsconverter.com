@@ -52,9 +52,14 @@ services:
       dockerfile: Dockerfile
     container_name: freeunitsconverter_prd-seo_audit
     environment:   # make sure you set this in .env
-      - EMAIL_PASS=${EMAIL_PASS}  
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_TO=${EMAIL_TO}      
+      - EMAIL_HOST=${EMAIL_HOST}  
+      - EMAIL_PORT=${EMAIL_PORT} 
       - GA_PROPERTY_ID=${GA_PROPERTY_ID} 
-      - GA_TAG_ID=${GA_TAG_ID}  # optional, if you added it to .env
+      - GA_TAG_ID=${GA_TAG_ID}  
+      - PSI_API_KEY=${PSI_API_KEY} 
     volumes:
       - ./frontend/static-pages:/usr/src/app/static-pages:ro
     restart: unless-stopped
