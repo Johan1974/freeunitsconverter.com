@@ -64,9 +64,10 @@ async function getGAInsights() {
     }));
 
     const top5 = pages
-      .filter(p => !['/', '/length', '/weight', '/volume', '/temperature'].includes(p.path))
-      .sort((a, b) => a.session - b.session)
-      .slice(0, 5);
+    .filter(p => !['/', '/length', '/weight', '/volume', '/temperature'].includes(p.path))
+    .sort((a, b) => a.session - b.session)
+    .slice(0, 5);
+
 
     const suggestions = [];
     top5.forEach(p => {
@@ -85,23 +86,40 @@ async function getGAInsights() {
 // --- Static pages scan ---
 function scanStaticPagesFolder() {
   const missingFiles = [];
+
   function scan(folderPath) {
     if (!fs.existsSync(folderPath)) return;
+
     const entries = fs.readdirSync(folderPath, { withFileTypes: true });
+
     entries.forEach(e => {
       if (e.isDirectory()) {
         const dirPath = path.join(folderPath, e.name);
+
+        // If this is a category folder, scan inside but don't check for files here
+        if (['length', 'weight', 'volume', 'temperature'].includes(e.name)) {
+          scan(dirPath);
+          return;
+        }
+
+        // Only check subfolders (unit combination folders)
         const indexPath = path.join(dirPath, 'index.html');
         const guidePath = path.join(dirPath, 'conversionguide.html');
+
         if (!fs.existsSync(indexPath)) missingFiles.push(`Missing index.html in folder: ${path.relative(staticFolder, dirPath)}`);
         if (!fs.existsSync(guidePath)) missingFiles.push(`Missing conversionguide.html in folder: ${path.relative(staticFolder, dirPath)}`);
+
+        // Continue scanning deeper, in case of nested subfolders
         scan(dirPath);
       }
     });
   }
+
   scan(staticFolder);
   return [...new Set(missingFiles)];
 }
+
+
 
 // --- Ghost URLs from GA (not in sitemap) ---
 async function getGhostUrls(sitemapUrls) {
@@ -117,13 +135,14 @@ async function getGhostUrls(sitemapUrls) {
     });
 
     const indexedUrls = response.rows.map(r => r.dimensionValues[0].value);
-    const ghostUrls = indexedUrls.filter(u => !sitemapUrls.includes(u));
+    const ghostUrls = indexedUrls.filter(u => !sitemapUrls.includes(u) && !u.match(/^\/(length|weight|volume|temperature)\//));
     return ghostUrls.map(u => siteUrl.replace(/\/$/, '') + u);
   } catch (err) {
     console.error('❌ Failed to fetch Google-indexed URLs:', err.message);
     return [];
   }
 }
+
 
 // --- Main SEO Audit ---
 async function runSEOAudit() {
