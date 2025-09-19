@@ -9,7 +9,8 @@ jobs:
   build-and-seo:
     runs-on: ubuntu-latest
     env:
-      SITE_URL: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -20,11 +21,11 @@ jobs:
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout repository
+      # Step 1: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Cache Node modules
+      # Step 2: Cache Node modules for frontend
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -37,7 +38,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 4: Generate static pages & sitemap
+      # Step 4: Generate static pages & sitemap using Node container
       - name: Generate static pages
         run: |
           docker run --rm \
@@ -56,29 +57,29 @@ jobs:
         run: |
           docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
 
-      # Step 7: Start frontend container for SEO audit
+      # Step 7: Start frontend container in a user-defined network
       - name: Start frontend container
         run: |
-          docker run -d --name frontend_test -p 9080:80 freeunitsconverter_dev-frontend
-          echo "Waiting for frontend to start..."
+          docker network create seo_test_net || true
+          docker run -d --name frontend_test --network seo_test_net freeunitsconverter_dev-frontend
           sleep 5
-
-      # Step 7a: Optional connectivity check
-      - name: Test frontend connectivity
-        run: |
-          echo "Checking if frontend is reachable at http://localhost:9080"
-          curl -I http://localhost:9080 || (echo "ERROR: Cannot reach frontend" && exit 1)
 
       # Step 8: Build SEO audit container
       - name: Build SEO audit container
         run: |
           docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 9: Run SEO audit container
+      # Step 9: Optional debug: check network connectivity to frontend
+      - name: Test connectivity to frontend
+        run: |
+          docker run --rm --network seo_test_net curlimages/curl curl -I http://frontend_test:80
+
+      # Step 10: Run SEO audit container
       - name: Run SEO audit
         run: |
           docker run --rm \
-            -e SITE_URL=http://localhost:9080 \
+            --network seo_test_net \
+            -e SITE_URL=http://frontend_test:80 \
             -e EMAIL_USER=$EMAIL_USER \
             -e EMAIL_PASS=$EMAIL_PASS \
             -e EMAIL_TO=$EMAIL_TO \
@@ -90,13 +91,13 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 10: Stop frontend test container
+      # Step 11: Stop frontend test container
       - name: Stop frontend container
         run: |
           docker stop frontend_test
           docker rm frontend_test || true
 
-      # Step 11: Upload SEO audit report
+      # Step 12: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
