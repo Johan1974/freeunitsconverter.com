@@ -53,27 +53,27 @@ jobs:
         run: |
           docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
 
-      # Step 6: Build frontend container
+      # Step 6: Build frontend container (optional for audit against container)
       - name: Build frontend container
         run: |
           docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
 
-      # Step 7: Start frontend container for SEO audit
-      - name: Start frontend container
-        run: |
-          docker run -d --name frontend_test -p 8080:80 freeunitsconverter_dev-frontend
-          sleep 5  # wait for container to be ready
+      # Step 7: (Optional) Start frontend container for local SEO audit
+      # Only needed if you want the audit to run against the container instead of SITE_URL_DEV
+      #- name: Start frontend container
+      #  run: |
+      #    docker run -d --name frontend_test -p 8080:80 freeunitsconverter_dev-frontend
+      #    sleep 5
 
       # Step 8: Build SEO audit container
       - name: Build SEO audit container
         run: |
           docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 9: Run SEO audit container
+      # Step 9: Run SEO audit container against SITE_URL_DEV
       - name: Run SEO audit
         run: |
           docker run --rm \
-            --network host \
             -e SITE_URL=$SITE_URL \
             -e EMAIL_USER=$EMAIL_USER \
             -e EMAIL_PASS=$EMAIL_PASS \
@@ -86,11 +86,11 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 10: Stop frontend test container
-      - name: Stop frontend container
-        run: |
-          docker stop frontend_test
-          docker rm frontend_test || true
+      # Step 10: (Optional) Stop frontend container if started above
+      #- name: Stop frontend container
+      #  run: |
+      #    docker stop frontend_test
+      #    docker rm frontend_test || true
 
       # Step 11: Upload SEO audit report
       - name: Upload SEO audit report
