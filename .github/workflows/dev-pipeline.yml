@@ -63,41 +63,27 @@ jobs:
         run: |
           docker network ls | grep seo_test_net || docker network create seo_test_net
 
-      # Step 8: Start frontend container on the network
+      # Step 8: Start frontend container with required env vars
       - name: Start frontend container
         run: |
-          docker run -d \
-            --name frontend_test \
-            --network seo_test_net \
+          docker run -d --name frontend_test --network seo_test_net \
             -p 9080:80 \
+            -e NODE_ENV=development \
+            -e SITE_URL=http://frontend_test:80 \
+            -e API_URL=http://backend_test:8000 \
+            -e EMAIL_USER=$EMAIL_USER \
+            -e EMAIL_PASS=$EMAIL_PASS \
+            -e EMAIL_TO=$EMAIL_TO \
+            -e EMAIL_HOST=$EMAIL_HOST \
+            -e EMAIL_PORT=$EMAIL_PORT \
             freeunitsconverter_dev-frontend
-          docker ps -a
-          sleep 5
+          sleep 5  # wait for container to be ready
 
-      # Step 9: Save SITE_URL debug artifact
-      - name: Save debug SITE_URLs
-        run: |
-          echo "SITE_URL=$SITE_URL" > debug_env.txt
-          echo "SITE_URL_DEV=$SITE_URL_DEV" >> debug_env.txt
-          echo "SITE_URL_PRD=$SITE_URL_PRD" >> debug_env.txt
-
-      # Step 10: Upload debug artifact
-      - name: Upload debug_env artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-env
-          path: debug_env.txt
-
-      # Step 11: Optional connectivity test FROM a container
+      # Step 11: Optional connectivity test
       - name: Test frontend connectivity
         run: |
           echo "Testing connection to frontend container..."
           docker run --rm --network seo_test_net curlimages/curl:8.2.1 -sSf http://frontend_test:80
-
-      # Step 12: Build SEO audit container
-      - name: Build SEO audit container
-        run: |
-          docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
       # Step 13: Run SEO audit container
       - name: Run SEO audit
@@ -116,15 +102,12 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 14: Stop frontend container
+      # Step 14: Capture frontend logs before stopping
+      - name: Save frontend logs
+        run: docker logs frontend_test || true
+
+      # Step 15: Stop frontend container
       - name: Stop frontend container
         run: |
           docker stop frontend_test
           docker rm frontend_test || true
-
-      # Step 15: Upload SEO audit report
-      - name: Upload SEO audit report
-        uses: actions/upload-artifact@v4
-        with:
-          name: seo-report
-          path: seo_audit/reports/
