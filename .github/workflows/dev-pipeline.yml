@@ -22,12 +22,11 @@ jobs:
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
 
     steps:
-
       # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Cache Node modules for frontend
+      # Step 2: Cache Node modules
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -59,43 +58,50 @@ jobs:
         run: |
           docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
 
-      # Step 7: Create Docker network
+      # Step 7: Create network for dev
       - name: Create Docker network
-        run: |
-          docker network create seo_test_net || true
+        run: docker network create seo_test_net || true
 
-      # Step 8: Start frontend container
+      # Step 8: Start backend container
+      - name: Start backend container
+        run: |
+          docker run -d --name backend_test --network seo_test_net -p 8000:8000 freeunitsconverter_dev-backend
+
+      # Step 9: Start frontend container
       - name: Start frontend container
         run: |
-          docker run -d --name frontend_test --network seo_test_net -p 9080:80 freeunitsconverter_dev-frontend
-          sleep 5  # wait for container to be ready
+          docker run -d --name frontend_test \
+            --network seo_test_net \
+            -p 9080:80 \
+            -e API_URL=http://backend_test:8000 \
+            freeunitsconverter_dev-frontend
+          sleep 5
 
-      # Step 9: Save debug SITE_URLs
+      # Step 10: Debug SITE_URL values
       - name: Save debug SITE_URLs
         run: |
           echo "SITE_URL=$SITE_URL" > debug_env.txt
           echo "SITE_URL_DEV=$SITE_URL_DEV" >> debug_env.txt
           echo "SITE_URL_PRD=$SITE_URL_PRD" >> debug_env.txt
 
-      # Step 10: Upload debug_env artifact
+      # Step 11: Upload debug artifact
       - name: Upload debug_env artifact
         uses: actions/upload-artifact@v4
         with:
           name: debug-env
           path: debug_env.txt
 
-      # Step 11: Optional connectivity test
+      # Step 12: Optional connectivity test
       - name: Test frontend connectivity
         run: |
           echo "Testing connection to frontend container..."
           docker run --rm --network seo_test_net curlimages/curl:8.2.1 -sSf http://frontend_test:80
 
-      # Step 12: Build SEO audit container
+      # Step 13: Build SEO audit container
       - name: Build SEO audit container
-        run: |
-          docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
+        run: docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 13: Run SEO audit container
+      # Step 14: Run SEO audit container
       - name: Run SEO audit
         run: |
           docker run --rm \
@@ -112,13 +118,20 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 14: Stop frontend container
-      - name: Stop frontend container
+      # Step 15: Collect frontend logs
+      - name: Save frontend logs
         run: |
-          docker stop frontend_test
-          docker rm frontend_test || true
+          docker logs frontend_test > frontend_logs.txt || true
+          docker logs backend_test > backend_logs.txt || true
+          ls -l *.txt
 
-      # Step 15: Upload SEO audit reports
+      # Step 16: Stop containers
+      - name: Stop and remove containers
+        run: |
+          docker stop frontend_test backend_test
+          docker rm frontend_test backend_test || true
+
+      # Step 17: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
