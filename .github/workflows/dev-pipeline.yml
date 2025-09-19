@@ -52,15 +52,24 @@ jobs:
         run: |
           docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
 
-      # Step 6: Build SEO audit container
+      # Step 6: Build frontend container (for audit target)
+      - name: Build and run frontend container
+        run: |
+          docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
+          docker run -d --name frontend -p 8080:80 freeunitsconverter_dev-frontend
+          # Give it a few seconds to start
+          sleep 5
+
+      # Step 7: Build SEO audit container
       - name: Build SEO audit container
         run: |
           docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 7: Run SEO audit container
+      # Step 8:  Run SEO audit container
       - name: Run SEO audit
         run: |
-          docker run --rm \
+          docker run --rm  \
+            --network host \
             -e SITE_URL=$SITE_URL \
             -e EMAIL_USER=$EMAIL_USER \
             -e EMAIL_PASS=$EMAIL_PASS \
@@ -73,7 +82,7 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 8: Upload SEO audit report
+      # Step 9: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
