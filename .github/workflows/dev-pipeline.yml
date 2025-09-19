@@ -31,7 +31,7 @@ jobs:
       # Step 5: Build SEO audit container
       - name: Build SEO audit container
         run: |
-          docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
+          docker build -f seo_audit/Dockerfile -t freeunitsconverter_dev-seo_audit ./seo_audit
 
       # Step 6: Generate static pages and sitemap
       - name: Generate static pages
