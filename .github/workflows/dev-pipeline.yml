@@ -9,40 +9,71 @@ on:
 jobs:
   build-and-seo:
     runs-on: ubuntu-latest
+    env:
+      SITE_URL: http://localhost:8080
+      EMAIL_USER: ${{ secrets.EMAIL_USER }}
+      EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      EMAIL_TO: ${{ secrets.EMAIL_TO }}
+      EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
+      EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
+      GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
+      GA_TAG_ID: ${{ secrets.GA_TAG_ID }}
+      PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
+
     steps:
       # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Docker Buildx
+      # Step 2: Cache Node modules for frontend
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # Step 3: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 3: Build backend container
+      # Step 4: Generate static pages & sitemap using Node container
+      - name: Generate static pages
+        run: |
+          docker run --rm \
+            -v $GITHUB_WORKSPACE/frontend:/app \
+            -w /app \
+            node:20 \
+            sh -c "npm ci && node generate-pages.js && node generate-sitemap.js"
+
+      # Step 5: Build backend container
       - name: Build backend container
         run: |
           docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
 
-      # Step 4: Build SEO audit container
+      # Step 6: Build SEO audit container
       - name: Build SEO audit container
         run: |
           docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 5: Generate static pages and sitemap (temporary Node container)
-      - name: Generate static pages
-        run: |
-          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-pages.js
-          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-sitemap.js
-
-      # Step 6: Run SEO audit container
+      # Step 7: Run SEO audit container
       - name: Run SEO audit
         run: |
           docker run --rm \
-            -e SITE_URL=http://localhost:8080 \
+            -e SITE_URL=$SITE_URL \
+            -e EMAIL_USER=$EMAIL_USER \
+            -e EMAIL_PASS=$EMAIL_PASS \
+            -e EMAIL_TO=$EMAIL_TO \
+            -e EMAIL_HOST=$EMAIL_HOST \
+            -e EMAIL_PORT=$EMAIL_PORT \
+            -e GA_PROPERTY_ID=$GA_PROPERTY_ID \
+            -e GA_TAG_ID=$GA_TAG_ID \
+            -e PSI_API_KEY=$PSI_API_KEY \
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 7: Upload SEO audit report
+      # Step 8: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:

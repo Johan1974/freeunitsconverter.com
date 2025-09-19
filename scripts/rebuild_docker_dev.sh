@@ -11,8 +11,9 @@ docker run --rm \
   -v $(pwd)/frontend:/app \
   -w /app \
   -u $(id -u):$(id -g) \
-  node:18 \
-  sh -c "npm install dotenv && node generate-pages.js && node generate-sitemap.js"
+  node:20 \
+  sh -c "npm ci && node generate-pages.js && node generate-sitemap.js"
+
 
 echo "✅ Static pages and sitemap generated."
 
