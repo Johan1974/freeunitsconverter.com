@@ -1,5 +1,6 @@
 name: Development CI Pipeline
 
+# Trigger the workflow on pushes to development branch
 on:
   push:
     branches:
@@ -9,7 +10,8 @@ jobs:
   build-and-seo:
     runs-on: ubuntu-latest
     env:
-      SITE_URL: http://frontend_test:80   # Internal Docker network URL
+      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -20,6 +22,7 @@ jobs:
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
 
     steps:
+
       # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
@@ -61,11 +64,14 @@ jobs:
         run: |
           docker network create seo_test_net || true
 
-      # Step 8: Start frontend container on network
+      # Step 8: Start frontend container for SEO audit on custom network
       - name: Start frontend container
         run: |
-          docker run -d --name frontend_test --network seo_test_net freeunitsconverter_dev-frontend
-          sleep 10  # wait for frontend to be ready
+          docker run -d \
+            --name frontend_test \
+            --network seo_test_net \
+            freeunitsconverter_dev-frontend
+          sleep 5  # wait for container to be ready
 
       # Step 9: Build SEO audit container
       - name: Build SEO audit container
@@ -77,7 +83,7 @@ jobs:
         run: |
           docker run --rm \
             --network seo_test_net \
-            -e SITE_URL=$SITE_URL \
+            -e SITE_URL=http://frontend_test:80 \
             -e EMAIL_USER=$EMAIL_USER \
             -e EMAIL_PASS=$EMAIL_PASS \
             -e EMAIL_TO=$EMAIL_TO \
@@ -89,11 +95,12 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 11: Stop frontend container
+      # Step 11: Stop and remove frontend container
       - name: Stop frontend container
         run: |
           docker stop frontend_test
           docker rm frontend_test || true
+          docker network rm seo_test_net || true
 
       # Step 12: Upload SEO audit report
       - name: Upload SEO audit report
