@@ -118,7 +118,7 @@ jobs:
           docker stop frontend_test
           docker rm frontend_test || true
 
-      # Step 15: Upload SEO audit report
+      # Step 15: Upload SEO audit reports
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
