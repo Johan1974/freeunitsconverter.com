@@ -1,6 +1,6 @@
 name: Development CI Pipeline
 
-# Trigger on pushes to development branch
+# Trigger the workflow on pushes to development branch
 on:
   push:
     branches:
@@ -18,23 +18,31 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 3: Build all dev containers using docker-compose
-      - name: Build dev containers
+      # Step 3: Build backend container
+      - name: Build backend container
         run: |
-          docker compose -f docker-compose.dev.yml build
+          docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
 
-      # Step 4: Generate static pages and sitemap inside frontend container
-      - name: Generate static pages & sitemap
+      # Step 4: Build SEO audit container
+      - name: Build SEO audit container
         run: |
-          docker compose -f docker-compose.dev.yml run --rm frontend node generate-pages.js
-          docker compose -f docker-compose.dev.yml run --rm frontend node generate-sitemap.js
+          docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 5: Run SEO audit container
+      # Step 5: Generate static pages and sitemap (temporary Node container)
+      - name: Generate static pages
+        run: |
+          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-pages.js
+          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-sitemap.js
+
+      # Step 6: Run SEO audit container
       - name: Run SEO audit
         run: |
-          docker compose -f docker-compose.dev.yml run --rm seo_audit
+          docker run --rm \
+            -e SITE_URL=http://localhost:8080 \
+            -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
+            freeunitsconverter_dev-seo_audit
 
-      # Step 6: Upload SEO report artifact
+      # Step 7: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
