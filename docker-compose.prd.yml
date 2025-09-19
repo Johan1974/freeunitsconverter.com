@@ -48,22 +48,22 @@ services:
 
   seo_audit:
     build:
-      context: ./seo_audit
-      dockerfile: Dockerfile
+      context: ./seo_audit      # ✅ Folder, not Dockerfile
+      dockerfile: Dockerfile.prd
     container_name: freeunitsconverter_prd-seo_audit
-    environment:   # make sure you set this in .env
+    environment:
       - EMAIL_USER=${EMAIL_USER}
       - EMAIL_PASS=${EMAIL_PASS}
-      - EMAIL_TO=${EMAIL_TO}      
-      - EMAIL_HOST=${EMAIL_HOST}  
-      - EMAIL_PORT=${EMAIL_PORT} 
-      - GA_PROPERTY_ID=${GA_PROPERTY_ID} 
-      - GA_TAG_ID=${GA_TAG_ID}  
-      - PSI_API_KEY=${PSI_API_KEY} 
-    volumes:
-      - ./frontend/static-pages:/usr/src/app/static-pages:ro
+      - EMAIL_TO=${EMAIL_TO}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - GA_PROPERTY_ID=${GA_PROPERTY_ID}
+      - GA_TAG_ID=${GA_TAG_ID}
+      - PSI_API_KEY=${PSI_API_KEY}
+      - SITE_URL=${SITE_URL_PRD}
     restart: unless-stopped
-    command: ["node", "run_audit.js"]
+    command: ["node", "run_audit_prd.js"]
+
 
 
 

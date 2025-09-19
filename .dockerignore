@@ -22,3 +22,9 @@ certbot/conf/archive/
 # Other unnecessary files
 index_old.html
 index_Likethis.html
+
+
+node_modules
+npm-debug.log
+static-pages
+certbot/
