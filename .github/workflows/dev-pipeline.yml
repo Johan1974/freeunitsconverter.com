@@ -1,5 +1,6 @@
 name: Development CI Pipeline
 
+# Trigger on pushes to the development branch
 on:
   push:
     branches:
@@ -9,8 +10,7 @@ jobs:
   build-and-seo:
     runs-on: ubuntu-latest
     env:
-      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
-      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
+      SITE_URL: ${{ secrets.SITE_URL_DEV }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -21,11 +21,11 @@ jobs:
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
 
     steps:
-      # Step 1: Checkout repository
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Cache Node modules for frontend
+      # Step 2: Cache Node modules
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -38,7 +38,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 4: Generate static pages & sitemap using Node container
+      # Step 4: Generate static pages & sitemap
       - name: Generate static pages
         run: |
           docker run --rm \
@@ -49,32 +49,32 @@ jobs:
 
       # Step 5: Build backend container
       - name: Build backend container
-        run: |
-          docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
+        run: docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
 
       # Step 6: Build frontend container
       - name: Build frontend container
-        run: |
-          docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
+        run: docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
 
-      # Step 7: Start frontend container in a user-defined network
+      # Step 7: Create Docker network
+      - name: Create Docker network
+        run: docker network create seo_test_net || true
+
+      # Step 8: Start frontend container in network
       - name: Start frontend container
         run: |
-          docker network create seo_test_net || true
           docker run -d --name frontend_test --network seo_test_net freeunitsconverter_dev-frontend
-          sleep 5
+          sleep 5  # wait for frontend to be ready
 
-      # Step 8: Build SEO audit container
+      # Step 9: Build SEO audit container
       - name: Build SEO audit container
-        run: |
-          docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
+        run: docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 9: Optional debug: check network connectivity to frontend
+      # Step 10: Optional connectivity test
       - name: Test connectivity to frontend
         run: |
-          docker run --rm --network seo_test_net curlimages/curl curl -I http://frontend_test:80
+          docker run --rm --network seo_test_net curlimages/curl:latest curl -s -o /dev/null -w "%{http_code}" http://frontend_test:80
 
-      # Step 10: Run SEO audit container
+      # Step 11: Run SEO audit container
       - name: Run SEO audit
         run: |
           docker run --rm \
@@ -91,13 +91,13 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 11: Stop frontend test container
+      # Step 12: Stop frontend container
       - name: Stop frontend container
         run: |
           docker stop frontend_test
           docker rm frontend_test || true
 
-      # Step 12: Upload SEO audit report
+      # Step 13: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
