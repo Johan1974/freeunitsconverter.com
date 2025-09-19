@@ -22,6 +22,17 @@ jobs:
 
     steps:
 
+      # Step 0: Save SITE_URL variables for debug
+      - name: Save SITE_URL variables for debug
+        run: |
+          echo "SITE_URL=$SITE_URL" > debug_env.txt
+          echo "SITE_URL_DEV=${{ secrets.SITE_URL_DEV }}" >> debug_env.txt
+          echo "SITE_URL_PRD=${{ secrets.SITE_URL_PRD }}" >> debug_env.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debug-env
+          path: debug_env.txt
+
       # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
@@ -69,23 +80,11 @@ jobs:
         run: |
           docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
 
-      # Step 9: Debug environment variables
-      - name: Debug environment
-        run: |
-          echo "SITE_URL=$SITE_URL"
-          echo "EMAIL_USER=${EMAIL_USER:0:3}***"
-          echo "EMAIL_PASS=***"
-          echo "EMAIL_TO=${EMAIL_TO:0:3}***"
-          echo "EMAIL_HOST=$EMAIL_HOST"
-          echo "EMAIL_PORT=$EMAIL_PORT"
-          echo "GA_PROPERTY_ID=$GA_PROPERTY_ID"
-          echo "GA_TAG_ID=$GA_TAG_ID"
-          echo "PSI_API_KEY=${PSI_API_KEY:0:3}***"
-
-      # Step 10: Run SEO audit container
+      # Step 9: Run SEO audit container
       - name: Run SEO audit
         run: |
           docker run --rm \
+            --network host \
             -e SITE_URL=$SITE_URL \
             -e EMAIL_USER=$EMAIL_USER \
             -e EMAIL_PASS=$EMAIL_PASS \
@@ -98,13 +97,13 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
-      # Step 11: Stop frontend test container
+      # Step 10: Stop frontend test container
       - name: Stop frontend container
         run: |
           docker stop frontend_test
           docker rm frontend_test || true
 
-      # Step 12: Upload SEO audit report
+      # Step 11: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
