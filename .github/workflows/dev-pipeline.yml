@@ -1,6 +1,6 @@
 name: Development CI Pipeline
 
-# Trigger the workflow on pushes to development branch
+# Trigger on pushes to development branch
 on:
   push:
     branches:
@@ -10,44 +10,31 @@ jobs:
   build-and-seo:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Docker Buildx for building containers
+      # Step 2: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 3: Build frontend container (dev mode)
-      - name: Build frontend container
+      # Step 3: Build all dev containers using docker-compose
+      - name: Build dev containers
         run: |
-          docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
+          docker compose -f docker-compose.dev.yml build
 
-      # Step 4: Build backend container
-      - name: Build backend container
+      # Step 4: Generate static pages and sitemap inside frontend container
+      - name: Generate static pages & sitemap
         run: |
-          docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
+          docker compose -f docker-compose.dev.yml run --rm frontend node generate-pages.js
+          docker compose -f docker-compose.dev.yml run --rm frontend node generate-sitemap.js
 
-      # Step 5: Build SEO audit container
-      - name: Build SEO audit container
-        run: |
-          docker build -f seo_audit/Dockerfile -t freeunitsconverter_dev-seo_audit ./seo_audit
-
-      # Step 6: Generate static pages and sitemap
-      - name: Generate static pages
-        run: |
-          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-pages.js
-          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-sitemap.js
-
-      # Step 7: Run SEO audit container
+      # Step 5: Run SEO audit container
       - name: Run SEO audit
         run: |
-          docker run --rm \
-            -e SITE_URL=http://localhost:8080 \
-            -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
-            freeunitsconverter_dev-seo_audit
+          docker compose -f docker-compose.dev.yml run --rm seo_audit
 
-      # Step 8: Upload SEO report for inspection
+      # Step 6: Upload SEO report artifact
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
