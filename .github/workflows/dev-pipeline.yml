@@ -23,12 +23,27 @@ jobs:
     steps:
 
       # Step 0: Check environment variables
-      - name: Save env for debug
-        run: echo "SITE_URL=$SITE_URL" > debug_env.txt
-      - uses: actions/upload-artifact@v4
-        with:
-          name: debug-env
-          path: debug_env.txt
+- name: Save env for debug
+  run: |
+    {
+      echo "SITE_URL=$SITE_URL"
+      echo "EMAIL_USER=${EMAIL_USER:0:3}***"
+      echo "EMAIL_PASS=${EMAIL_PASS:0:3}***"
+      echo "EMAIL_TO=${EMAIL_TO:0:3}***"
+      echo "EMAIL_HOST=$EMAIL_HOST"
+      echo "EMAIL_PORT=$EMAIL_PORT"
+      echo "GA_PROPERTY_ID=$GA_PROPERTY_ID"
+      echo "GA_TAG_ID=$GA_TAG_ID"
+      echo "PSI_API_KEY=${PSI_API_KEY:0:3}***"
+      echo "SITE_URL_DEV=$SITE_URL_DEV"
+      echo "SITE_URL_PRD=$SITE_URL_PRD"
+    } > debug_env.txt
+
+- uses: actions/upload-artifact@v4
+  with:
+    name: debug-env
+    path: debug_env.txt
+
 
 
       # Step 1: Checkout repository
