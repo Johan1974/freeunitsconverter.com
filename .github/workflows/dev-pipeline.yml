@@ -36,8 +36,8 @@ jobs:
       # Step 6: Generate static pages and sitemap
       - name: Generate static pages
         run: |
-          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:18 node generate-pages.js
-          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:18 node generate-sitemap.js
+          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-pages.js
+          docker run --rm -v $GITHUB_WORKSPACE/frontend:/app -w /app node:20 node generate-sitemap.js
 
       # Step 7: Run SEO audit container
       - name: Run SEO audit
