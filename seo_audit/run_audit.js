@@ -39,6 +39,27 @@ const transporter = nodemailer.createTransport({
 // Ensure report directory exists
 if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir, { recursive: true });
 
+// --- Metric explanations ---
+const metricExplanations = {
+  'first-contentful-paint': 'Time until first visible content is rendered',
+  'largest-contentful-paint': 'Time until largest visible content is rendered',
+  'cumulative-layout-shift': 'Measures visual stability during page load',
+  'total-blocking-time': 'Time during which user input is blocked',
+  'speed-index': 'How quickly content is visually displayed'
+};
+
+// --- Helper to flag metrics ---
+function flagMetric(name, value) {
+  switch(name) {
+    case 'first-contentful-paint': return value > 3 ? '⚠' : '✅';
+    case 'largest-contentful-paint': return value > 2.5 ? '⚠' : '✅';
+    case 'cumulative-layout-shift': return value > 0.1 ? '⚠' : '✅';
+    case 'total-blocking-time': return value > 300 ? '⚠' : '✅';
+    case 'speed-index': return value > 4 ? '⚠' : '✅';
+    default: return '';
+  }
+}
+
 // --- GA Insights ---
 async function getGAInsights() {
   if (!GA_PROPERTY_ID) return { top5: [], suggestions: ['GA_PROPERTY_ID not set'] };
@@ -64,10 +85,9 @@ async function getGAInsights() {
     }));
 
     const top5 = pages
-    .filter(p => !['/', '/length', '/weight', '/volume', '/temperature'].includes(p.path))
-    .sort((a, b) => a.session - b.session)
-    .slice(0, 5);
-
+      .filter(p => !['/', '/length', '/weight', '/volume', '/temperature'].includes(p.path))
+      .sort((a, b) => a.session - b.session)
+      .slice(0, 5);
 
     const suggestions = [];
     top5.forEach(p => {
@@ -96,20 +116,17 @@ function scanStaticPagesFolder() {
       if (e.isDirectory()) {
         const dirPath = path.join(folderPath, e.name);
 
-        // If this is a category folder, scan inside but don't check for files here
         if (['length', 'weight', 'volume', 'temperature'].includes(e.name)) {
           scan(dirPath);
           return;
         }
 
-        // Only check subfolders (unit combination folders)
         const indexPath = path.join(dirPath, 'index.html');
         const guidePath = path.join(dirPath, 'conversionguide.html');
 
         if (!fs.existsSync(indexPath)) missingFiles.push(`Missing index.html in folder: ${path.relative(staticFolder, dirPath)}`);
         if (!fs.existsSync(guidePath)) missingFiles.push(`Missing conversionguide.html in folder: ${path.relative(staticFolder, dirPath)}`);
 
-        // Continue scanning deeper, in case of nested subfolders
         scan(dirPath);
       }
     });
@@ -119,9 +136,7 @@ function scanStaticPagesFolder() {
   return [...new Set(missingFiles)];
 }
 
-
-
-// --- Ghost URLs from GA (not in sitemap) ---
+// --- Ghost URLs ---
 async function getGhostUrls(sitemapUrls) {
   if (!GA_PROPERTY_ID) return [];
   const client = new BetaAnalyticsDataClient({ keyFile: GA_KEY_FILE });
@@ -143,12 +158,13 @@ async function getGhostUrls(sitemapUrls) {
   }
 }
 
-
 // --- Main SEO Audit ---
 async function runSEOAudit() {
   const timestamp = moment().tz(TIMEZONE).format('YYYY-MM-DD_HH-mm-ss');
   const reportFile = path.join(reportDir, `seo_report_${timestamp}.txt`);
   let report = `SEO Audit Report for ${siteUrl}\nGenerated: ${moment().tz(TIMEZONE).format('dddd, MMMM Do YYYY, HH:mm:ss z')}\n\n`;
+
+  const summaryCounts = { Mobile: 0, Desktop: 0 };
 
   // --- Fetch site HTML ---
   try {
@@ -173,29 +189,42 @@ async function runSEOAudit() {
   }
 
   // --- PageSpeed Insights ---
+  // --- PageSpeed Insights with short labels ---
 try {
   const mobile = await psi(siteUrl, { strategy: 'mobile', key: process.env.PSI_API_KEY });
   const desktop = await psi(siteUrl, { strategy: 'desktop', key: process.env.PSI_API_KEY });
 
-  const mobileScore = mobile.data?.lighthouseResult?.categories?.performance?.score;
-  const desktopScore = desktop.data?.lighthouseResult?.categories?.performance?.score;
+  const metrics = [
+    { key: 'first-contentful-paint', label: 'FCP', desc: 'Time until first visible content is rendered' },
+    { key: 'largest-contentful-paint', label: 'LCP', desc: 'Time until largest visible content is rendered' },
+    { key: 'cumulative-layout-shift', label: 'CLS', desc: 'Measures visual stability during page load' },
+    { key: 'total-blocking-time', label: 'TBT', desc: 'Time during which user input is blocked by scripts' },
+    { key: 'speed-index', label: 'SI', desc: 'How quickly content is visually displayed' }
+  ];
 
-  report += `\n📱 Mobile performance score: ${mobileScore !== undefined ? mobileScore * 100 : 'N/A'}\n`;
-  report += `💻 Desktop performance score: ${desktopScore !== undefined ? desktopScore * 100 : 'N/A'}\n`;
+  const mobileMetrics = mobile.data.lighthouseResult.audits;
+  const desktopMetrics = desktop.data.lighthouseResult.audits;
 
-  // --- AI suggestions for low PSI scores ---
-  if (mobileScore !== undefined && mobileScore < 0.8) {
-    report += `💡 Mobile performance is low (${(mobileScore*100).toFixed(0)}). Optimize images, reduce render-blocking scripts.\n`;
-  }
-  if (desktopScore !== undefined && desktopScore < 0.9) {
-    report += `💡 Desktop performance is below ideal (${(desktopScore*100).toFixed(0)}). Consider caching, compression, speed optimizations.\n`;
-  }
+  report += `\n📱 Mobile performance score: ${mobile.data.lighthouseResult.categories.performance.score * 100}\n`;
+  metrics.forEach(m => {
+    const value = mobileMetrics[m.key].numericValue;
+    const formatted = m.key === 'cumulative-layout-shift' ? value.toFixed(3) : (value / 1000).toFixed(1) + (m.key === 'total-blocking-time' ? ' ms' : ' s');
+    const status = (m.key === 'first-contentful-paint' || m.key === 'largest-contentful-paint' || m.key === 'speed-index') && value / 1000 > 3 ? '⚠' : '✅';
+    report += `${status} ${m.label}: ${formatted} ---> ${m.desc}\n`;
+  });
+
+  report += `\n💻 Desktop performance score: ${desktop.data.lighthouseResult.categories.performance.score * 100}\n`;
+  metrics.forEach(m => {
+    const value = desktopMetrics[m.key].numericValue;
+    const formatted = m.key === 'cumulative-layout-shift' ? value.toFixed(3) : (value / 1000).toFixed(1) + (m.key === 'total-blocking-time' ? ' ms' : ' s');
+    const status = (m.key === 'first-contentful-paint' || m.key === 'largest-contentful-paint' || m.key === 'speed-index') && value / 1000 > 3 ? '⚠' : '✅';
+    report += `${status} ${m.label}: ${formatted} ---> ${m.desc}\n`;
+  });
 
 } catch (err) {
   report += `❌ Error running PageSpeed Insights: ${err.message}\n`;
 }
 
-  
 
   // --- Broken links ---
   report += `\n🔗 Checking for broken links...\n`;

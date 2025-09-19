@@ -12,4 +12,4 @@ RUN npm install
 COPY . .
 
 # Run Node script
-CMD ["node", "run_audit.js"]
+CMD ["node", "run_audit_dev.js"]

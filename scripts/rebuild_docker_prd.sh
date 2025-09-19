@@ -4,7 +4,9 @@ set -e
 echo "Stopping old production containers..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml down
 
+# ---------------------------
 # Ensure Certbot challenge folder exists
+# ---------------------------
 CERTBOT_WWW="./certbot/www"
 mkdir -p "$CERTBOT_WWW/.well-known/acme-challenge"
 
@@ -24,13 +26,13 @@ if [ ! -f "$CERT_PATH" ]; then
 fi
 
 # ---------------------------
-# 0️⃣ Make frontend/static-pages writable
+# 0️⃣ Make frontend folder writable
 # ---------------------------
-echo "🔧 Ensuring static-pages folder is writable..."
+echo "🔧 Ensuring frontend folder is writable..."
 sudo chown -R $USER:$USER ./frontend
 
 # ---------------------------
-# 1️⃣ Generate static SEO pages & sitemap
+# 1️⃣ Generate static pages & sitemap
 # ---------------------------
 echo "🔄 Generating static converter pages & sitemap..."
 cd frontend
@@ -38,6 +40,14 @@ node generate-pages.js
 node generate-sitemap.js
 cd ..
 echo "✅ Static pages and sitemap generated."
+
+# ---------------------------
+# 1b️⃣ Copy static pages into seo_audit folder for prod build
+# ---------------------------
+echo "🔄 Copying static-pages into seo_audit folder..."
+rm -rf seo_audit/static-pages
+cp -r frontend/static-pages seo_audit/
+echo "✅ static-pages copied."
 
 # ---------------------------
 # 2️⃣ Build and start main production containers
@@ -50,13 +60,11 @@ echo "✅ Production environment is up with HTTPS enabled."
 # 3️⃣ Verify compression
 # ---------------------------
 echo "🔍 Verifying compression..."
-
 BROTLI_CHECK=$(curl -s -I -H "Accept-Encoding: br" https://freeunitsconverter.com | grep -i "Content-Encoding")
 echo "Brotli test headers: $BROTLI_CHECK"
 
 GZIP_CHECK=$(curl -s -I -H "Accept-Encoding: gzip" https://freeunitsconverter.com | grep -i "Content-Encoding")
 echo "Gzip test headers: $GZIP_CHECK"
-
 echo "✅ Compression verification complete."
 
 # ---------------------------

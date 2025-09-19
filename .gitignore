@@ -37,3 +37,10 @@ npm-debug.log*
 
 # google Analytics API
 ga-key.json
+certbot/conf/renewal/freeunitsconverter.com.conf
+
+
+certbot/www/
+certbot/conf/accounts/
+certbot/conf/archive/
+certbot/conf/live/
