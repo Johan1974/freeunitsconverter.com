@@ -9,6 +9,7 @@ jobs:
   build-and-seo:
     runs-on: ubuntu-latest
     env:
+      SITE_URL: ${{ secrets.SITE_URL_DEV }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -21,9 +22,11 @@ jobs:
       SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Step 2: Cache Node modules for frontend
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -32,9 +35,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
+      # Step 3: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
+      # Step 4: Generate static pages & sitemap
       - name: Generate static pages
         run: |
           docker run --rm \
@@ -43,46 +48,54 @@ jobs:
             node:20 \
             sh -c "npm ci && node generate-pages.js && node generate-sitemap.js"
 
+      # Step 5: Build backend container
       - name: Build backend container
         run: |
           docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
 
+      # Step 6: Build frontend container
       - name: Build frontend container
         run: |
           docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
 
-      - name: Build SEO audit container
-        run: |
-          docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
-
+      # Step 7: Create Docker network for SEO audit
       - name: Create Docker network
-        run: docker network create seo_test_net || true
-
-      - name: Start frontend container on custom network
         run: |
-          docker run -d \
-            --name frontend_test \
-            --network seo_test_net \
-            -p 9080:80 \
-            freeunitsconverter_dev-frontend
-          sleep 5
+          docker network create seo_test_net || true
 
+      # Step 8: Start frontend container
+      - name: Start frontend container
+        run: |
+          docker run -d --name frontend_test --network seo_test_net -p 9080:80 freeunitsconverter_dev-frontend
+          sleep 5  # wait for container to be ready
+
+      # Step 9: Save SITE_URL debug artifact
       - name: Save debug SITE_URLs
         run: |
-          echo "SITE_URL=${{ secrets.SITE_URL_DEV }}" > debug_env.txt
-          echo "SITE_URL_DEV=${{ secrets.SITE_URL_DEV }}" >> debug_env.txt
-          echo "SITE_URL_PRD=${{ secrets.SITE_URL_PRD }}" >> debug_env.txt
+          echo "SITE_URL=$SITE_URL" > debug_env.txt
+          echo "SITE_URL_DEV=$SITE_URL_DEV" >> debug_env.txt
+          echo "SITE_URL_PRD=$SITE_URL_PRD" >> debug_env.txt
+
+      # Step 10: Upload debug artifact
+      - name: Upload debug_env artifact
         uses: actions/upload-artifact@v4
         with:
           name: debug-env
           path: debug_env.txt
 
-      - name: Test connectivity to frontend
+      # Step 11: Optional connectivity test
+      - name: Test frontend connectivity
         run: |
-          echo "Testing frontend connectivity..."
-          curl -I http://frontend_test:80 || true
+          echo "Testing connection to frontend container..."
+          curl -f http://frontend_test:80 || (echo "Frontend not reachable!" && exit 1)
 
-      - name: Run SEO audit container
+      # Step 12: Build SEO audit container
+      - name: Build SEO audit container
+        run: |
+          docker build -f seo_audit/Dockerfile.dev -t freeunitsconverter_dev-seo_audit ./seo_audit
+
+      # Step 13: Run SEO audit container
+      - name: Run SEO audit
         run: |
           docker run --rm \
             --network seo_test_net \
@@ -98,11 +111,13 @@ jobs:
             -v $GITHUB_WORKSPACE/frontend/static-pages:/usr/src/app/static-pages:ro \
             freeunitsconverter_dev-seo_audit
 
+      # Step 14: Stop frontend container
       - name: Stop frontend container
         run: |
           docker stop frontend_test
           docker rm frontend_test || true
 
+      # Step 15: Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
