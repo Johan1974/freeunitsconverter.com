@@ -21,6 +21,18 @@ jobs:
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
 
     steps:
+
+      # Step 0: Check environment variables
+      - name: Check environment variables
+        run: |
+          echo "SITE_URL=$SITE_URL"
+          echo "EMAIL_USER=${EMAIL_USER:0:3}***"
+          echo "EMAIL_TO=${EMAIL_TO:0:3}***"
+          echo "EMAIL_HOST=$EMAIL_HOST"
+          echo "GA_PROPERTY_ID=$GA_PROPERTY_ID"
+          echo "GA_TAG_ID=$GA_TAG_ID"
+          echo "PSI_API_KEY=${PSI_API_KEY:0:3}***"
+
       # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
