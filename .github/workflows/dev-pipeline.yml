@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SITE_URL: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -18,15 +20,13 @@ jobs:
       GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
       GA_TAG_ID: ${{ secrets.GA_TAG_ID }}
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
-      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
-      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
 
     steps:
       # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Cache Node modules for frontend
+      # Step 2: Cache Node modules
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -61,13 +61,18 @@ jobs:
       # Step 7: Create Docker network for SEO audit
       - name: Create Docker network
         run: |
-          docker network create seo_test_net || true
+          docker network ls | grep seo_test_net || docker network create seo_test_net
 
-      # Step 8: Start frontend container
+      # Step 8: Start frontend container on the network
       - name: Start frontend container
         run: |
-          docker run -d --name frontend_test --network seo_test_net -p 9080:80 freeunitsconverter_dev-frontend
-          sleep 5  # wait for container to be ready
+          docker run -d \
+            --name frontend_test \
+            --network seo_test_net \
+            -p 9080:80 \
+            freeunitsconverter_dev-frontend
+          docker ps -a
+          sleep 5
 
       # Step 9: Save SITE_URL debug artifact
       - name: Save debug SITE_URLs
@@ -83,11 +88,11 @@ jobs:
           name: debug-env
           path: debug_env.txt
 
-      # Step 11: Optional connectivity test
+      # Step 11: Optional connectivity test FROM a container
       - name: Test frontend connectivity
         run: |
           echo "Testing connection to frontend container..."
-          curl -f http://frontend_test:80 || (echo "Frontend not reachable!" && exit 1)
+          docker run --rm --network seo_test_net curlimages/curl:8.2.1 -sSf http://frontend_test:80
 
       # Step 12: Build SEO audit container
       - name: Build SEO audit container
