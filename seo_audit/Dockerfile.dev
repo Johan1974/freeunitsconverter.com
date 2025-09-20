@@ -2,14 +2,14 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json first
+# Install curl
+RUN apk add --no-cache curl bash
+
+# Copy package.json first for caching
 COPY package*.json ./
 
-# Install dependencies (including node-schedule added in package.json)
 RUN npm install
 
-# Copy the rest of your SEO audit code
 COPY . .
 
-# Run Node script
-CMD ["node", "run_audit_dev.js"]
+# No CMD here — let docker-compose control it

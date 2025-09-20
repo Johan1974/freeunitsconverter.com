@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   frontend:
     build:
@@ -5,11 +7,13 @@ services:
       dockerfile: Dockerfile.dev
     container_name: freeunitsconverter_dev-frontend
     ports:
-      - "8080:80"
+      - "8080:80"  
     volumes:
       - ./frontend:/usr/share/nginx/html:rw   # live editing
       - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     restart: unless-stopped
+    networks:
+      - freeunitsconverter_dev
 
   backend:
     build:
@@ -19,8 +23,10 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+    networks:
+      - freeunitsconverter_dev
 
-  seo_audit:  
+  seo_audit:
     build:
       context: ./seo_audit
       dockerfile: Dockerfile.dev
@@ -34,8 +40,26 @@ services:
       - GA_PROPERTY_ID=${GA_PROPERTY_ID}
       - GA_TAG_ID=${GA_TAG_ID}
       - PSI_API_KEY=${PSI_API_KEY}
-      - SITE_URL=${SITE_URL_DEV}   # points to localhost:8080
+      - SITE_URL=http://frontend:80
+      - PSI_SITE_URL=http://freeunitsconverter.com:8080/
     volumes:
       - ./frontend/static-pages:/usr/src/app/static-pages:ro
     restart: "no"
-    command: ["node", "run_audit_dev.js"]
+    command:
+      - bash
+      - -c
+      - |
+        echo "⏳ Waiting for frontend to be ready...";
+        until curl -sSf http://frontend:80 > /dev/null; do
+          echo "Waiting for frontend...";
+          sleep 2;
+        done;
+        echo "✅ Frontend ready, starting SEO audit...";
+        node run_audit_dev.js
+    networks:
+      - freeunitsconverter_dev
+
+
+networks:
+  freeunitsconverter_dev:
+    driver: bridge
