@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SITE_URL: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -18,12 +20,10 @@ jobs:
       GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
       GA_TAG_ID: ${{ secrets.GA_TAG_ID }}
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
-      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
-      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
 
     steps:
       # Step 1: Checkout code
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       # Step 2: Cache Node modules
@@ -35,11 +35,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # Step 3: Setup Docker Buildx
+      # Step 3: Set up Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Step 4: Generate static pages & sitemap
+      # Step 4: Generate static pages
       - name: Generate static pages
         run: |
           docker run --rm \
@@ -53,7 +53,7 @@ jobs:
         run: |
           docker build -f backend/Dockerfile -t freeunitsconverter_dev-backend ./backend
 
-      # Step 6: Build frontend container
+      # Step 6: Build frontend container (with static pages included)
       - name: Build frontend container
         run: |
           docker build -f frontend/Dockerfile.dev -t freeunitsconverter_dev-frontend ./frontend
@@ -66,38 +66,37 @@ jobs:
       # Step 8: Start frontend container
       - name: Start frontend container
         run: |
-          docker run -d --name frontend_test --network seo_test_net -p 9080:80 freeunitsconverter_dev-frontend
-
-      # Step 9: Wait for frontend to be ready with retries
-      - name: Wait for frontend
-        run: |
-          echo "Waiting for frontend container to be ready..."
-          for i in {1..10}; do
-            if docker run --rm --network seo_test_net curlimages/curl:8.2.1 -sSf http://frontend_test:80; then
-              echo "Frontend is ready!"
-              exit 0
-            else
-              echo "Attempt $i: frontend not ready yet, retrying in 5s..."
-              sleep 5
-            fi
-          done
-          echo "Frontend did not become ready, dumping logs:"
-          docker logs frontend_test
-          exit 1
-
-      # Step 10: Save debug SITE_URLs
+          docker run -d --name frontend_test --network seo_test_net freeunitsconverter_dev-frontend
+          
+      # Step 9: Save SITE_URL debug artifact
       - name: Save debug SITE_URLs
         run: |
           echo "SITE_URL=$SITE_URL" > debug_env.txt
           echo "SITE_URL_DEV=$SITE_URL_DEV" >> debug_env.txt
           echo "SITE_URL_PRD=$SITE_URL_PRD" >> debug_env.txt
 
-      # Step 11: Upload debug artifact
+      # Step 10: Upload debug artifact
       - name: Upload debug_env artifact
         uses: actions/upload-artifact@v4
         with:
           name: debug-env
           path: debug_env.txt
+
+      # Step 11: Wait for frontend container to be ready
+      - name: Wait for frontend container
+        run: |
+          echo "Waiting for frontend container to be ready..."
+          for i in {1..10}; do
+            if docker run --rm --network seo_test_net curlimages/curl:8.2.1 -sSf http://frontend_test:80; then
+              echo "Frontend is ready!"
+              break
+            else
+              echo "Attempt $i: frontend not ready, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          echo "Final check:"
+          docker run --rm --network seo_test_net curlimages/curl:8.2.1 -v http://frontend_test:80
 
       # Step 12: Build SEO audit container
       - name: Build SEO audit container
