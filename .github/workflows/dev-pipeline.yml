@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SITE_URL: ${{ secrets.SITE_URL_DEV }}
-      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
-      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
       EMAIL_USER: ${{ secrets.EMAIL_USER }}
       EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
       EMAIL_TO: ${{ secrets.EMAIL_TO }}
@@ -20,14 +18,15 @@ jobs:
       GA_PROPERTY_ID: ${{ secrets.GA_PROPERTY_ID }}
       GA_TAG_ID: ${{ secrets.GA_TAG_ID }}
       PSI_API_KEY: ${{ secrets.PSI_API_KEY }}
+      SITE_URL_DEV: ${{ secrets.SITE_URL_DEV }}
+      SITE_URL_PRD: ${{ secrets.SITE_URL_PRD }}
 
     steps:
-
-      # Step 1: Checkout repository
-      - name: Checkout code
+      # Step 1: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Cache Node modules for frontend
+      # Step 2: Cache Node modules
       - name: Cache Node modules
         uses: actions/cache@v3
         with:
@@ -36,7 +35,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # Step 3: Set up Docker Buildx
+      # Step 3: Setup Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -68,27 +67,37 @@ jobs:
       - name: Start frontend container
         run: |
           docker run -d --name frontend_test --network seo_test_net -p 9080:80 freeunitsconverter_dev-frontend
-          sleep 5  # wait for container to be ready
 
-      # Step 9: Save debug SITE_URLs
+      # Step 9: Wait for frontend to be ready with retries
+      - name: Wait for frontend
+        run: |
+          echo "Waiting for frontend container to be ready..."
+          for i in {1..10}; do
+            if docker run --rm --network seo_test_net curlimages/curl:8.2.1 -sSf http://frontend_test:80; then
+              echo "Frontend is ready!"
+              exit 0
+            else
+              echo "Attempt $i: frontend not ready yet, retrying in 5s..."
+              sleep 5
+            fi
+          done
+          echo "Frontend did not become ready, dumping logs:"
+          docker logs frontend_test
+          exit 1
+
+      # Step 10: Save debug SITE_URLs
       - name: Save debug SITE_URLs
         run: |
           echo "SITE_URL=$SITE_URL" > debug_env.txt
           echo "SITE_URL_DEV=$SITE_URL_DEV" >> debug_env.txt
           echo "SITE_URL_PRD=$SITE_URL_PRD" >> debug_env.txt
 
-      # Step 10: Upload debug_env artifact
+      # Step 11: Upload debug artifact
       - name: Upload debug_env artifact
         uses: actions/upload-artifact@v4
         with:
           name: debug-env
           path: debug_env.txt
-
-      # Step 11: Optional connectivity test
-      - name: Test frontend connectivity
-        run: |
-          echo "Testing connection to frontend container..."
-          docker run --rm --network seo_test_net curlimages/curl:8.2.1 -sSf http://frontend_test:80
 
       # Step 12: Build SEO audit container
       - name: Build SEO audit container
