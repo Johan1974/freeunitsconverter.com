@@ -65,7 +65,7 @@ jobs:
       - name: Start frontend container
         run: docker run -d --name frontend_test --network seo_test_net freeunitsconverter_dev-frontend
 
-      # 🔟 Wait for frontend to be ready
+      # 🔟 Wait for frontend container to be ready
       - name: Wait for frontend container
         run: |
           echo "Waiting for frontend container to be ready..."
@@ -102,9 +102,27 @@ jobs:
           docker stop frontend_test
           docker rm frontend_test || true
 
-      # 1️⃣3️⃣ Upload  SEO audit report
+      # 1️⃣3️⃣ Upload SEO audit report
       - name: Upload SEO audit report
         uses: actions/upload-artifact@v4
         with:
           name: seo-report
           path: seo_audit/reports/
+
+      # 1️⃣4️⃣ Send email if any step failed
+      - name: Send email on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ env.EMAIL_HOST }}
+          server_port: ${{ env.EMAIL_PORT }}
+          username: ${{ env.EMAIL_USER }}
+          password: ${{ env.EMAIL_PASS }}
+          subject: "⚠ SEO Regression Detected in Development"
+          to: ${{ env.EMAIL_TO }}
+          from: ${{ env.EMAIL_USER }}
+          body: |
+            ⚠ SEO audit detected issues in the latest development build.
+            
+            Please check the attached report(s) for details.
+          attachments: seo_audit/reports/*.txt
