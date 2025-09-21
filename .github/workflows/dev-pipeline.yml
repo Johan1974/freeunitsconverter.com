@@ -111,7 +111,7 @@ jobs:
 
       # 1️⃣4️⃣ Send email if any step failed
       - name: Send email on failure
-        if: failure()
+        # if: failure()
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ env.EMAIL_HOST }}
