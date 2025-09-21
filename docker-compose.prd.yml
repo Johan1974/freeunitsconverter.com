@@ -60,7 +60,8 @@ services:
       - GA_PROPERTY_ID=${GA_PROPERTY_ID}
       - GA_TAG_ID=${GA_TAG_ID}
       - PSI_API_KEY=${PSI_API_KEY}
-      - SITE_URL=${SITE_URL_PRD}
+      - SITE_URL_INT=${SITE_URL_INT}  # internal Docker URL   
+      - SITE_URL_EXT=${SITE_URL_DEV}  # external URL used for SEO, canonical, CSS
     restart: unless-stopped
     command: ["node", "run_audit_prd.js"]
 

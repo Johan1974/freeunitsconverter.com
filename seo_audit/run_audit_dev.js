@@ -20,10 +20,12 @@ dotenv.config();
 
 // --- Config ---
 // Internal Docker URL (used for axios, curl-style checks, broken links)
-const siteUrl = process.env.SITE_URL || 'http://frontend:80';
+// internal URL of the service
+const siteUrl = process.env.SITE_URL_INT; 
 
 // External/public URL (used for PageSpeed Insights only)
-const psiSiteUrl = process.env.PSI_SITE_URL || 'http://freeunitsconverter.com:8080';
+// #external URL of the service
+const psiSiteUrl = process.env.SITE_URL_EXT; 
 
 const reportDir = path.join(process.cwd(), 'reports');
 const staticFolder = path.join(process.cwd(), 'static-pages');

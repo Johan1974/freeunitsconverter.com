@@ -5,30 +5,36 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Free Units Converter — Convert Length, Weight, Temp & Volume</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-
+  
     <meta name="description" id="meta-description" content="Free Units Converter lets you quickly convert length, weight, temperature, and volume units online. Simple, fast, accurate and always free." />
-    <link rel="canonical" id="canonical-link" href="https://freeunitsconverter.com/">
+    <link rel="canonical" id="canonical-link" href=""> 
+  
     <script type="application/ld+json" id="json-ld">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "url": "https://freeunitsconverter.com/",
-        "name": "Free Units Converter — Convert Length, Weight, Temp & Volume"
-      }
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "",
+      "name": "Free Units Converter — Convert Length, Weight, Temp & Volume"
+    }
     </script>
-    <!-- MathJax configuration -->
+  
+    <!-- MathJax -->
     <script>
       window.MathJax = {
         tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
         svg: { fontCache: 'global' }
       };
     </script>
-    <script id="MathJax-script" async 
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
-
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://freeunitsconverter.com/style.css">
+  
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" id="main-style" href="">
+  
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HX0YW2Z8WS"></script>
     <script>
@@ -37,9 +43,51 @@
       gtag('js', new Date());
       gtag('config', 'G-HX0YW2Z8WS');
     </script>
+  
+    <!-- SITE URLS from environment -->
+    <script>
+      // These are set via Docker env variables
+      window.SITE_URL_INT = (typeof SITE_URL_INT !== "undefined") ? SITE_URL_INT : "http://frontend:80";
+      window.SITE_URL_EXT = (typeof SITE_URL_EXT !== "undefined") ? SITE_URL_EXT : "http://freeunitsconverter.com:8080/";
+  
+      // Debug output (can remove later)
+      console.log("Internal URL:", window.SITE_URL_INT);
+      console.log("External URL:", window.SITE_URL_EXT);
+  
+      // Update canonical, CSS, and JSON-LD
+      const canonicalLink = document.getElementById("canonical-link");
+      if(canonicalLink) canonicalLink.href = window.SITE_URL_EXT;
+  
+      const mainStyle = document.getElementById("main-style");
+      if(mainStyle) mainStyle.href = window.SITE_URL_EXT + "style.css";
+  
+      const jsonLd = document.getElementById("json-ld");
+      if(jsonLd) {
+        try {
+          const ld = JSON.parse(jsonLd.textContent);
+          ld.url = window.SITE_URL_EXT;
+          jsonLd.textContent = JSON.stringify(ld);
+        } catch(err) {
+          console.error("Failed to update JSON-LD URL", err);
+        }
+      }
+    </script>
   </head>
+  
 
   <body>
+
+    
+    <!-- <div id="site-urls" style="padding:1rem; background:#f0f0f0; margin:1rem 0;">
+      <p>Internal URL: <span id="site-url-int"></span></p>
+      <p>External URL: <span id="site-url-ext"></span></p>
+    </div>
+    
+    <script>
+      document.getElementById("site-url-int").textContent = window.SITE_URL_INT || "(undefined)";
+      document.getElementById("site-url-ext").textContent = window.SITE_URL_EXT || "(undefined)";
+    </script> -->
+    
     <div class="container">
       <header>
         <div class="logo">Free Units Converter</div>
