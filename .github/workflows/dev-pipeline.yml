@@ -107,16 +107,25 @@ jobs:
           docker rm frontend_test || true
 
       # 1️⃣4️⃣ Upload only the latest SEO audit report
-      - name: Upload latest SEO audit report
+      - name: Find latest SEO audit report
         id: upload
         run: |
-          latest=$(ls -t seo_audit/reports/seo_report_*.txt | head -1)
-          echo "Latest report: $latest"
-          echo "report=$latest" >> $GITHUB_OUTPUT
-      - uses: actions/upload-artifact@v4
+          latest=$(ls -t seo_audit/reports/seo_report_*.txt 2>/dev/null | head -1)
+          if [ -z "$latest" ]; then
+            echo "No report found"
+            echo "report="
+          else
+            echo "Latest report: $latest"
+            echo "report=$latest" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload latest SEO audit report
+        if: steps.upload.outputs.report != ''
+        uses: actions/upload-artifact@v4
         with:
           name: seo-report
           path: ${{ steps.upload.outputs.report }}
+
 
       # 1️⃣5️⃣ Send email on failure
       - name: Send email on failure
