@@ -1,15 +1,272 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>centimeter to foot Converter | Free Units Converter</title>
-  <meta name="description" content="Convert centimeter to foot instantly with our free, accurate, and easy-to-use length converter.">
-  <link rel="canonical" href="https://freeunitsconverter.com/length/centimeter-to-foot/">
-</head>
-<body>
-  <h1>centimeter to foot Converter</h1>
-  <p>Use this free tool to quickly convert centimeter to foot. Accurate, simple, and always free.</p>
-  <div id="app"></div>
-  <script src="/app.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>centimeter to foot Converter | Free Units Converter</title>
+    <link rel="icon" href="http://freeunitsconverter.com:8080/favicon.ico" type="image/x-icon" />
+
+    <meta name="description" content="Convert centimeter to foot instantly with our free, accurate, and easy-to-use length converter.">
+    <link rel="canonical" href="http://freeunitsconverter.com:8080/length/centimeter-to-foot/"> 
+
+    <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "centimeter to foot Converter",
+  "url": "http://freeunitsconverter.com:8080/length/centimeter-to-foot/",
+  "description": "Convert centimeter to foot instantly with our free, accurate, and easy-to-use length converter.",
+  "mainEntity": {
+    "@type": "UnitConversion",
+    "fromUnit": "centimeter",
+    "toUnit": "foot"
+  }
+}</script>
+
+    <!-- MathJax -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" id="main-style" href="http://freeunitsconverter.com:8080/style.css">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HX0YW2Z8WS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HX0YW2Z8WS');
+    </script>
+
+    <!-- SITE URLS from environment -->
+    <script>
+      window.SITE_URL_INT = "http://frontend:80";
+      window.SITE_URL_EXT = "http://freeunitsconverter.com:8080/";
+
+      console.log("Internal URL:", window.SITE_URL_INT);
+      console.log("External URL:", window.SITE_URL_EXT);
+    </script>
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo">Free Units Converter</div>
+        <nav aria-label="Main navigation">
+          <a href="#categories">Categories</a>
+          <a href="#conversionGuide">Conversion Guide</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
+
+      <section class="hero" style="padding: 2rem 1rem; text-align: center; background-color: #f9f9f9; border-radius: 8px;">
+        <h1 class="title" style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Convert any unit instantly</h1>
+        <p class="subtitle" style="font-size: 1.1rem; margin-bottom: 1rem; color: #333;">
+          Simple · Fast · Accurate — Save favorites and view recent conversions
+        </p>
+
+        <hr style="border: none; border-top: 5px solid #ccc; margin: 1.5rem auto; width: 150px;">
+
+        <p class="seo-text" style="font-size: 0.95rem; color: #555; line-height: 1.5; max-width: 700px; margin: 0 auto;">
+          Free Units Converter lets you quickly and accurately convert units of <strong>length, weight, temperature, and volume</strong>. 
+          Instantly convert <em>meters to feet, kilograms to pounds, liters to gallons, and Celsius to Fahrenheit</em>. 
+          Save your favorite conversions and review your recent calculations directly in your browser.
+        </p>
+      </section>
+
+      <main class="main-grid">
+        <div>
+          <!-- Converter -->
+          <section class="card converter" aria-label="Converter">
+            <div class="tabs" id="categoryTabs" role="tablist" aria-label="Categories"></div>
+            <div id="converterArea">
+              <div class="row">
+                <input id="valueInput" class="input" type="text" inputmode="decimal" aria-label="Value to convert" placeholder="Enter a number (e.g. 100)">
+                <select id="fromSelect" class="select" aria-label="From unit"></select>
+                <select id="toSelect" class="select" aria-label="To unit"></select>
+              </div>
+
+              <div class="row">
+                <button id="convertBtn" class="button" aria-label="Convert">Convert</button>
+                <button id="swapBtn" class="tab" title="Swap units">⇄ Swap</button>
+                <button id="saveFavBtn" class="tab" title="Save as favorite">★ Save</button>
+              </div>
+
+              <div id="resultBox" class="result" role="status" aria-live="polite"></div>
+              <p class="meta">Tip: use the arrow keys to open dropdowns. Temperature conversions support formulas.</p>
+            </div>
+          </section>
+
+          <!-- Conversion Guide -->
+          <section class="card mt-14" id="conversionGuide">
+            <h2>Conversion Guide</h2>
+            <div id="guideContent"><h3>Convert Centimeters to Feet Online Accurately</h3>
+
+<p>
+  Converting centimeters to feet is an essential skill for construction, engineering, fitness tracking, 
+  and travel. Whether you want to <strong>convert centimeters to feet online</strong> or manually, 
+  understanding the exact conversion ensures accuracy in all measurements.
+</p>
+
+<h3 id="core-conversion">The Core Conversion Formula</h3>
+
+<p>
+  The centimeter (cm) is a metric unit of length, commonly used worldwide, while the foot (ft) belongs 
+  to the imperial system and is widely used in the United States. The standard conversion is:
+</p>
+
+<p>
+  <strong>1 centimeter = 0.0328084 feet</strong>
+</p>
+
+<p>
+  To convert centimeters to feet manually, multiply the number of centimeters by 0.0328084. For example:
+</p>
+
+<div style="background:#f0f0f0; padding:0.5rem 1rem; border-radius:4px; display:inline-block; margin-bottom:1rem;">
+  100 cm × 0.0328084 = 3.28084 ft
+</div>
+
+<h3 id="reverse-conversion">Reverse Conversion: Feet to Centimeters</h3>
+
+<p>
+  If you have measurements in feet and need to convert them back to centimeters, the formula is simple:
+</p>
+
+<p>
+  <strong>Centimeters = Feet ÷ 0.0328084</strong>
+</p>
+
+<div style="background:#f0f0f0; padding:0.5rem 1rem; border-radius:4px; display:inline-block; margin-bottom:1rem;">
+  3.28084 ft ÷ 0.0328084 = 100 cm
+</div>
+
+<h3>Why Use an Online Centimeter-to-Foot Converter?</h3>
+
+<p>
+  Manual conversion can be time-consuming and prone to errors, especially when dealing with decimal 
+  values. Using an <strong>online converter</strong> offers:
+</p>
+
+<ul>
+  <li>Fast and precise results for any measurement.</li>
+  <li>Conversion in both directions (cm → ft and ft → cm).</li>
+  <li>Time-saving for repetitive or large-scale calculations.</li>
+</ul>
+
+<h3>Practical Applications</h3>
+
+<ul>
+  <li><strong>Construction & Architecture:</strong> Accurate conversions are crucial for building plans, blueprints, and measurements on site.</li>
+  <li><strong>Travel & Navigation:</strong> Road signs, hiking trails, and map measurements often require switching between metric and imperial units.</li>
+  <li><strong>Sports & Fitness:</strong> Track running distances, swimming pools, or field dimensions accurately in your preferred unit system.</li>
+  <li><strong>Education & Research:</strong> Students and researchers often convert between centimeters and feet for experiments, reports, and homework problems.</li>
+</ul>
+
+<h3>Quick Reference Table</h3>
+
+<table class="conversion-table">
+  <thead>
+    <tr>
+      <th>Centimeters (cm)</th>
+      <th>Feet (ft)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>10</td><td>0.33</td></tr>
+    <tr><td>50</td><td>1.64</td></tr>
+    <tr><td>100</td><td>3.28</td></tr>
+    <tr><td>150</td><td>4.92</td></tr>
+    <tr><td>200</td><td>6.56</td></tr>
+    <tr><td>500</td><td>16.40</td></tr>
+  </tbody>
+</table>
+
+<h3>Tips for Accurate Conversion</h3>
+
+<p>
+  1. Always use the precise factor 0.0328084 for centimeter-to-foot conversions.<br>
+  2. Round numbers only for quick estimates when high precision is not needed.<br>
+  3. Double-check conversions for construction, travel, or sports measurements.<br>
+  4. Use a reliable <strong>centimeters to feet online converter</strong> for large or repetitive conversions.
+</p>
+
+<h3>Summary</h3>
+
+<p>
+  Converting centimeters to feet online is fast, simple, and essential in many real-world scenarios. 
+  Using the conversion factor 1 cm = 0.0328084 ft ensures precise results for any measurement. 
+  Whether planning construction projects, measuring athletic fields, tracking personal fitness, 
+  or completing scientific research, an online converter saves time and ensures accuracy. Both 
+  directions (centimeters ↔ feet) are supported, making it a versatile tool for professionals, 
+  students, and hobbyists alike.
+</p>
+
+---
+
+If you want, I can **also write a matching guide for “Feet to Centimeters”** so it’s ready to place in the reverse unit folder for SEO.
+
+Do you want me to do that next?
+</div>
+          </section>
+        </div>
+
+        <aside>
+          <div class="card" id="categories">
+            <h4>Categories</h4>
+            <div id="categoryLinks" class="tabs"></div>
+            <div class="spacer-12"></div>
+          </div>
+
+          <div class="card">
+            <h4>Quick tips</h4>
+            <ul>
+              <li>Use favorites for quick reuse</li>
+              <li>Shortcut keys: Enter = Convert</li>
+            </ul>
+          </div>
+
+          <section class="card mt-14">
+            <h3>Recent Conversions</h3>
+            <p class="meta">Your recent conversions are saved in your browser (localStorage).</p>
+            <div id="historyList" class="list" aria-live="polite"></div>
+            <button id="clearHistoryBtn" style="margin-top:1rem;">Clear All Recent</button>
+          </section>
+
+          <section class="card mt-14">
+            <h3>Favorites</h3>
+            <p class="meta">Saved favorite conversions for quick access.</p>
+            <div id="favList" class="list" aria-live="polite" style="margin-top:1rem;"></div>
+            <button id="clearFavoritesBtn" style="margin-top:1rem;">Clear All Favorites</button>
+          </section>
+        </aside>
+      </main>
+
+      <footer>
+        <p>
+          © <span id="year"></span> Free Units Converter · 
+          <a href="#privacy">Privacy Policy</a> · 
+          <a href="#contact">Contact</a>
+        </p>
+        <p class="meta">
+          Convert units of length, weight, temperature, and volume online for free. 
+          Fast, accurate, and simple — perfect for students, professionals, and everyday use.
+        </p>
+      </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="http://freeunitsconverter.com:8080/converters.js"></script>
+    <script src="http://freeunitsconverter.com:8080/app.js"></script>
+  </body>
 </html>

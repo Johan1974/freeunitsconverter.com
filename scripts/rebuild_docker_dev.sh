@@ -1,55 +1,62 @@
 #!/bin/bash
 set -e
-set -x   # Debug: prints every command as it runs
+set -x
 
 # ---------------------------
-# 0️⃣ Generate static SEO pages & sitemap using Node container
+# Load environment variables from .env
 # ---------------------------
-echo "🔄 Generating static pages & sitemap..."
+set -o allexport
+source .env
+set +o allexport
 
-docker run --rm \
-  -v $(pwd)/frontend:/app \
-  -w /app \
-  -u $(id -u):$(id -g) \
-  node:20 \
-  sh -c "npm ci && node generate-pages.js && node generate-sitemap.js"
+echo "🔄 Generating static pages & sitemap for dev..."
 
-
-echo "✅ Static pages and sitemap generated."
+cd frontend
 
 # ---------------------------
-# 1️⃣ Remove old dev images (keep only latest freeunitsconverter_dev-* tags)
+# Generate pages & sitemap for DEV
 # ---------------------------
-echo "Removing old dev images (except latest freeunitsconverter_dev-* tags)..."
+node generate-pages.js dev
+node generate-sitemap.js
+
+cd ..
+
+# ---------------------------
+# Stop old dev containers
+# ---------------------------
+echo "Stopping old development containers..."
+docker ps -a --filter "name=freeunitsconverter_dev" -q | xargs -r docker stop || true
+docker ps -a --filter "name=freeunitsconverter_dev" -q | xargs -r docker rm || true
+
+# ---------------------------
+# Remove old dev images
+# ---------------------------
+echo "Removing old dev images..."
 docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' \
-    | grep 'freeunitsconverter' \
-    | grep -v 'freeunitsconverter_dev-' \
+    | grep 'freeunitsconverter_dev' \
     | awk '{print $2}' \
     | xargs -r docker rmi -f || true
 
 # ---------------------------
-# 2️⃣ Stop old development containers
+# Make frontend folder writable
 # ---------------------------
-echo "Stopping old development containers..."
-docker compose -p freeunitsconverter_dev -f docker-compose.dev.yml down || true
+echo "🔧 Ensuring frontend folder is writable..."
+sudo chown -R $USER:$USER ./frontend
 
 # ---------------------------
-# 3️⃣ Remove exited frontend/backend containers
-# ---------------------------
-echo "Removing any exited dev containers..."
-docker ps -a --filter "status=exited" --filter "name=freeunitsconverter_dev" -q | xargs -r docker rm || true
-
-# ---------------------------
-# 4️⃣ Build and start dev containers
+# Build frontend and backend images
 # ---------------------------
 echo "Building frontend and backend images..."
 docker compose -p freeunitsconverter_dev -f docker-compose.dev.yml build --no-cache frontend backend seo_audit
 
+# ---------------------------
+# Start development containers
+# ---------------------------
 echo "Starting development containers..."
 docker compose -p freeunitsconverter_dev -f docker-compose.dev.yml up -d frontend backend seo_audit
 
 # ---------------------------
-# 5️⃣ Prune dangling images to free space
+# Prune dangling images
 # ---------------------------
 echo "Pruning dangling images..."
 docker image prune -f

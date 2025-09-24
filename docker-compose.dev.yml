@@ -12,6 +12,10 @@ services:
     restart: unless-stopped
     networks:
       - freeunitsconverter_dev
+    environment:
+      - SITE_URL_INT=${SITE_URL_INT}  # internal Docker URL   
+      - SITE_URL_EXT=${SITE_URL_DEV}  # external URL used for SEO, canonical, CSS
+ 
 
   backend:
     build:
@@ -43,7 +47,7 @@ services:
       
     volumes:
       - ./frontend/static-pages:/usr/src/app/static-pages:ro
-    restart: "no"
+    restart: unless-stopped
     command:
       - bash
       - -c

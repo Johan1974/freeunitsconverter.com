@@ -36,7 +36,7 @@ sudo chown -R $USER:$USER ./frontend
 # ---------------------------
 echo "🔄 Generating static converter pages & sitemap..."
 cd frontend
-node generate-pages.js
+SITE_URL_EXT=$SITE_URL_PRD SITE_URL_INT=$SITE_URL_INT node generate-pages.js
 node generate-sitemap.js
 cd ..
 echo "✅ Static pages and sitemap generated."

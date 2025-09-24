@@ -1,6 +1,7 @@
 const CONVERTERS = [
   {
     id: "length",
+    label: "Length",
     units: {
       millimeter: "Millimeter",
       centimeter: "Centimeter",
@@ -14,6 +15,7 @@ const CONVERTERS = [
   },
   {
     id: "weight",
+    label: "Weight",
     units: {
       gram: "Gram",
       kilogram: "Kilogram",
@@ -23,6 +25,7 @@ const CONVERTERS = [
   },
   {
     id: "temperature",
+    label: "Temperature",
     units: {
       celsius: "Celsius",
       fahrenheit: "Fahrenheit",
@@ -31,6 +34,7 @@ const CONVERTERS = [
   },
   {
     id: "volume",
+    label: "Volume",
     units: {
       milliliter: "Milliliter",
       liter: "Liter",
@@ -41,7 +45,7 @@ const CONVERTERS = [
   }
 ];
 
-// Export for Node (sitemap + static page generation)
+// Export for Node (static pages)
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { CONVERTERS };
 }

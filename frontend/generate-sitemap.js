@@ -2,7 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const { CONVERTERS } = require('./converters.js');
 
-const BASE_URL = "https://freeunitsconverter.com";
+// const BASE_URL = "https://freeunitsconverter.com";
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+const BASE_URL = process.env.SITE_URL_PRD;
+
+
 const STATIC_DIR = path.join(__dirname, 'static-pages'); 
 const SITEMAP_FILE = path.join(__dirname, 'sitemap.xml');
 
