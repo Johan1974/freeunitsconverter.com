@@ -5,24 +5,46 @@ set -x
 # ---------------------------
 # Load environment variables from .env
 # ---------------------------
+set +H   # disables history expansion
 set -o allexport
 source .env
 set +o allexport
 
-echo "🔄 Generating static pages & sitemap for dev..."
+# ---------------------------
+# Files to ensure use DEV URL
+# ---------------------------
+FILES_TO_SWAP=(
+  "./frontend/index.html"
+  "./frontend/app.js"
+  # Add more files here if needed
+)
 
+# ---------------------------
+# Make frontend folder writable
+# ---------------------------
+echo "🔧 Ensuring frontend folder is writable..."
+sudo chown -R $USER:$USER ./frontend
+
+# ---------------------------
+# Replace any PRD URLs with DEV URLs
+# ---------------------------
+echo "🔄 Ensuring all files use DEV URLs..."
+for f in "${FILES_TO_SWAP[@]}"; do
+    sed -i "s|$SITE_URL_PRD|$SITE_URL_DEV|g" "$f"
+done
+
+# ---------------------------
+# Generate static pages & sitemap for DEV
+# ---------------------------
+echo "🔄 Generating static pages & sitemap for DEV..."
 cd frontend
-
-# ---------------------------
-# Generate pages & sitemap for DEV
-# ---------------------------
 node generate-pages.js dev
 node generate-sitemap.js
-
 cd ..
+echo "✅ Static pages and sitemap generated."
 
 # ---------------------------
-# Stop old dev containers
+# Stop old development containers
 # ---------------------------
 echo "Stopping old development containers..."
 docker ps -a --filter "name=freeunitsconverter_dev" -q | xargs -r docker stop || true
@@ -36,12 +58,6 @@ docker images --format '{{.Repository}}:{{.Tag}} {{.ID}}' \
     | grep 'freeunitsconverter_dev' \
     | awk '{print $2}' \
     | xargs -r docker rmi -f || true
-
-# ---------------------------
-# Make frontend folder writable
-# ---------------------------
-echo "🔧 Ensuring frontend folder is writable..."
-sudo chown -R $USER:$USER ./frontend
 
 # ---------------------------
 # Build frontend and backend images

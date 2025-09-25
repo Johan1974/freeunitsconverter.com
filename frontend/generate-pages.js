@@ -66,7 +66,11 @@ function makeHtml(catId, catLabel, fromUnit, toUnit) {
     .replace(/<link rel="canonical"[^>]+>/, `<link rel="canonical" href="${canonical}">`)
     .replace(/<script type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/,
              `<script type="application/ld+json">${JSON.stringify(jsonLd, null, 2)}</script>`)
-    .replace(/<div id="guideContent">[\s\S]*?<\/div>/, `<div id="guideContent">${guideHTML}</div>`);
+
+    // 🔥 New replacements for URLs
+    .replace(/http:\/\/freeunitsconverter\.com:8080\//g, SITE_URL_EXT)   // favicon, CSS, JS
+    .replace(/window\.SITE_URL_EXT\s*=\s*".*?";/,
+             `window.SITE_URL_EXT = "${SITE_URL_EXT}";`);
 }
 
 // -------------------------------
