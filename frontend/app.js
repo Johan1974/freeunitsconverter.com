@@ -57,45 +57,69 @@ window.CONVERTERS = [
 ];
 
 // -------------------------------
+// Path helper to prevent double slashes
+// -------------------------------
+const buildPath = (...parts) => parts.map(p => p.replace(/^\/+|\/+$/g, '')).join('/');
+
+// -------------------------------
 // Conversion Guide Loader
 // -------------------------------
 async function loadConversionGuide(catId, fromUnit, toUnit) {
   if (!DOM.guideContentEl) return;
-  const basePath = `${SITE_URL_EXT}static-pages/${catId}`;
+
+  const normalizedBaseURL = SITE_URL_EXT.replace(/\/+$/, '');
   const forwardFolder = `${fromUnit}-to-${toUnit}`;
   const reverseFolder = `${toUnit}-to-${fromUnit}`;
 
-  let snippetPath = `${basePath}/${forwardFolder}/conversionguide.html`;
+  let snippetPath = buildPath(normalizedBaseURL, 'static-pages', catId, forwardFolder, 'conversionguide.html');
+
   try {
-    let resp = await fetch(snippetPath, { cache:"no-store" });
-    if (!resp.ok) throw new Error();
+    let resp = await fetch(snippetPath, { cache: "no-store" });
+    if (!resp.ok) throw new Error("Failed to load forward conversion guide");
+
     let html = await resp.text();
-    if (html.includes("<html")) throw new Error();
+    console.log("Fetched HTML for forward path:", html); // Log fetched content
+
+    if (html.includes("<html")) throw new Error("Invalid HTML content");
+
     DOM.guideContentEl.innerHTML = html;
-    return;
-  } catch {
-    snippetPath = `${basePath}/${reverseFolder}/conversionguide.html`;
+    console.log("Inserted HTML for forward path:", html); // Log inserted content
+    return; // If successful, stop here
+
+  } catch (error) {
+    console.log("Error with forward path:", error); // Log the error
+
+    snippetPath = buildPath(normalizedBaseURL, 'static-pages', catId, reverseFolder, 'conversionguide.html');
     try {
-      let respRev = await fetch(snippetPath, { cache:"no-store" });
-      if (!respRev.ok) throw new Error();
-      let html = await respRev.text();
-      if (html.includes("<html")) throw new Error();
-      DOM.guideContentEl.innerHTML = html;
+      let respRev = await fetch(snippetPath, { cache: "no-store" });
+      if (!respRev.ok) throw new Error("Failed to load reverse conversion guide");
+
+      let htmlRev = await respRev.text();
+      console.log("Fetched HTML for reverse path:", htmlRev); // Log fetched content for reverse
+
+      if (htmlRev.includes("<html")) throw new Error("Invalid HTML content for reverse");
+
+      DOM.guideContentEl.innerHTML = htmlRev;
+      console.log("Inserted HTML for reverse path:", htmlRev); // Log inserted content for reverse
       return;
-    } catch {
+
+    } catch (error) {
+      console.log("Error with reverse path:", error); // Log error for reverse
       try {
-        const defaultResp = await fetch(`${SITE_URL_EXT}conversionguide-default.html`, { cache:"no-store" });
-        DOM.guideContentEl.innerHTML = await defaultResp.text();
-      } catch {
+        const defaultResp = await fetch(buildPath(normalizedBaseURL, 'conversionguide-default.html'), { cache: "no-store" });
+        let defaultHtml = await defaultResp.text();
+        console.log("Fetched default HTML:", defaultHtml); // Log the default content
+
+        DOM.guideContentEl.innerHTML = defaultHtml;
+      } catch (defaultError) {
+        console.log("Error loading default guide:", defaultError); // Log error for default
         DOM.guideContentEl.innerHTML = "<p>Conversion guide is not available at the moment.</p>";
       }
     }
   }
-
-  if (window.MathJax?.typesetPromise) {
-    window.MathJax.typesetPromise([DOM.guideContentEl]).catch(err=>console.error(err.message));
-  }
 }
+
+
 
 // -------------------------------
 // Result / History / Favorites
@@ -184,7 +208,7 @@ function convert() {
   const cat = window.CONVERTERS.find(c=>c.id===activeCategory);
   const raw = DOM.valueInput.value.trim();
   if (!raw){ showResult("Enter a value", false); return; }
-  const value = Number(raw.replace(",","."));
+  const value = Number(raw.replace(",",".")); 
   if (Number.isNaN(value)){ showResult("Invalid value", false); return; }
 
   const from = DOM.fromSelect.value, to = DOM.toSelect.value;
@@ -276,12 +300,11 @@ function setActiveCategory(id){
 // Handle URL unit combos
 // -------------------------------
 function handleURLUnitCombo() {
-  const path = location.pathname.replace(/^\/|\/$/g, ''); // remove leading/trailing slashes
-  const parts = path.split('/'); // e.g., ["length", "centimeter-to-inch"]
-
+  const path = location.pathname.replace(/^\/|\/$/g, '');
+  const parts = path.split('/');
   if (parts.length === 2) {
     const [catId, combo] = parts;
-    const units = combo.split('-to-'); // e.g., ["centimeter", "inch"]
+    const units = combo.split('-to-');
     if (units.length === 2) {
       const [from, to] = units;
       const cat = window.CONVERTERS.find(c => c.id === catId);
@@ -289,23 +312,13 @@ function handleURLUnitCombo() {
         setActiveCategory(catId);
         DOM.fromSelect.value = from;
         DOM.toSelect.value = to;
-
-        // Load conversion guide immediately
         loadConversionGuide(catId, from, to);
-
-        // Immediately perform conversion
         convert();
-
-        // Reset URL to root after applying combo
         history.replaceState(null, '', '/');
       }
     }
   }
 }
-
-// Call it after all your converters and DOM are initialized
-window.addEventListener('DOMContentLoaded', handleURLUnitCombo);
-
 
 // -------------------------------
 // Initialize UI
@@ -331,6 +344,7 @@ function bindUI(){
       showResult("All favorites cleared");
     }
   });
+
   $("#clearHistoryBtn")?.addEventListener("click", ()=>{
     if(confirm("Clear recent history?")){
       localStorage.removeItem("history");
@@ -345,7 +359,6 @@ function init(){
   bindUI();
   renderTabs();
   handleURLUnitCombo();
-  
   if(!activeCategory) setActiveCategory(window.CONVERTERS[0].id);
   renderHistory();
   renderFavorites();

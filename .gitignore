@@ -51,7 +51,3 @@ certbot/conf/renewal/freeunitsconverter.com.conf
 
 # Ignore SEO audit static pages completely
 /seo_audit/static-pages/**
-
-
-
-

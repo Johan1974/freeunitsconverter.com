@@ -11,6 +11,19 @@ source .env
 set +o allexport
 
 # ---------------------------
+# Ensure minifiers are installed
+# ---------------------------
+echo "🔧 Checking for JS/CSS minifiers..."
+command -v uglifyjs >/dev/null 2>&1 || {
+    echo "uglify-js not found. Installing..."
+    npm install -g uglify-js
+}
+command -v csso >/dev/null 2>&1 || {
+    echo "csso-cli not found. Installing..."
+    npm install -g csso-cli
+}
+
+# ---------------------------
 # Files to ensure use DEV URL
 # ---------------------------
 FILES_TO_SWAP=(
@@ -42,6 +55,15 @@ node generate-pages.js dev
 node generate-sitemap.js
 cd ..
 echo "✅ Static pages and sitemap generated."
+
+# ---------------------------
+# Minify JS and CSS for DEV
+# ---------------------------
+echo "🔧 Minifying JS and CSS..."
+uglifyjs ./frontend/app.js -o ./frontend/app.min.js -c -m
+uglifyjs ./frontend/converters.js -o ./frontend/converters.min.js -c -m
+csso ./frontend/style.css -o ./frontend/style.min.css
+echo "✅ Minified JS and CSS generated."
 
 # ---------------------------
 # Stop old development containers

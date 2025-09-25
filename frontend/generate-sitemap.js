@@ -2,18 +2,26 @@ const fs = require('fs');
 const path = require('path');
 const { CONVERTERS } = require('./converters.js');
 
-// const BASE_URL = "https://freeunitsconverter.com";
+// Load environment variables
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
-const BASE_URL = process.env.SITE_URL_PRD;
+const BASE_URL = process.env.SITE_URL_PRD.replace(/\/$/, ''); // remove trailing slash
 
-
+// Paths
 const STATIC_DIR = path.join(__dirname, 'static-pages'); 
 const SITEMAP_FILE = path.join(__dirname, 'sitemap.xml');
 
-function formatDate(date) {
-  return date.toISOString().split('T')[0]; // YYYY-MM-DD
+// Helper to safely join URLs without double slashes
+function joinUrl(base, ...paths) {
+  const trimmedPaths = paths.map(p => p.replace(/^\/|\/$/g, ''));
+  return [base, ...trimmedPaths].join('/');
 }
 
+// Format date YYYY-MM-DD
+function formatDate(date) {
+  return date.toISOString().split('T')[0];
+}
+
+// Get last modified date of a file
 function getLastModified(filePath) {
   try {
     const stats = fs.statSync(filePath);
@@ -26,11 +34,11 @@ function getLastModified(filePath) {
 function generateSitemap() {
   let urls = [];
 
-  // Homepage
+  // Homepage (no trailing slash)
   const homepageFile = path.join(STATIC_DIR, 'index.html');
   if (fs.existsSync(homepageFile)) {
     urls.push({
-      loc: BASE_URL + '/',
+      loc: BASE_URL,
       lastmod: getLastModified(homepageFile),
       priority: 1.0
     });
@@ -43,7 +51,7 @@ function generateSitemap() {
 
     if (fs.existsSync(catFile)) {
       urls.push({
-        loc: `${BASE_URL}/${cat.id}`,
+        loc: joinUrl(BASE_URL, cat.id),
         lastmod: getLastModified(catFile),
         priority: 0.8
       });
@@ -59,7 +67,7 @@ function generateSitemap() {
 
         if (fs.existsSync(convFile)) {
           urls.push({
-            loc: `${BASE_URL}/${cat.id}/${units[i]}-to-${units[j]}`,
+            loc: joinUrl(BASE_URL, cat.id, `${units[i]}-to-${units[j]}`),
             lastmod: getLastModified(convFile),
             priority: 0.7
           });
@@ -68,15 +76,14 @@ function generateSitemap() {
     }
   }
 
+  // Write sitemap XML
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => {
-    return `<url>
+${urls.map(u => `<url>
   <loc>${u.loc}</loc>
   ${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ''}
   <priority>${u.priority}</priority>
-</url>`;
-}).join('\n')}
+</url>`).join('\n')}
 </urlset>`;
 
   fs.writeFileSync(SITEMAP_FILE, xml, 'utf8');

@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import cron from 'node-cron';
 import moment from 'moment-timezone';
+import axios from 'axios';
 
 import {
   flagMetric,
@@ -20,19 +21,16 @@ dotenv.config();
 
 // --- Config ---
 // Internal Docker URL (used for axios, curl-style checks, broken links)
-// internal URL of the service
-const siteUrl = process.env.SITE_URL_INT; 
+const siteUrl = process.env.SITE_URL_INT;
 
 // External/public URL (used for PageSpeed Insights only)
-// #external URL of the service
-const psiSiteUrl = process.env.SITE_URL_EXT; 
+const psiSiteUrl = process.env.SITE_URL_EXT;
 
 const reportDir = path.join(process.cwd(), 'reports');
 const staticFolder = path.join(process.cwd(), 'static-pages');
 
 const GA_PROPERTY_ID = process.env.GA_PROPERTY_ID;
-const GA_KEY_FILE =
-  process.env.GA_KEY_FILE || path.join(process.cwd(), 'ga-key.json');
+const GA_KEY_FILE = process.env.GA_KEY_FILE || path.join(process.cwd(), 'ga-key.json');
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
@@ -51,25 +49,25 @@ const transporter = nodemailer.createTransport({
 });
 
 // Ensure report directory exists
-if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir, { recursive: true });
+if (!fs.existsSync(reportDir)) {
+  fs.mkdirSync(reportDir, { recursive: true });
+}
 
 // --- Main SEO Audit ---
 async function runSEOAudit() {
   const timestamp = moment().tz(TIMEZONE).format('YYYY-MM-DD_HH-mm-ss');
   const reportFile = path.join(reportDir, `seo_report_${timestamp}.txt`);
+
   let report = `SEO Audit Report (Development Environment)\nGenerated: ${moment()
     .tz(TIMEZONE)
     .format('dddd, MMMM Do YYYY, HH:mm:ss z')}\n\n`;
 
   // --- Fetch site HTML (internal) ---
   try {
-    const html = await (await import('axios')).default
-      .get(siteUrl)
-      .then(res => res.data);
+    const { data: html } = await axios.get(siteUrl);
 
     const allImgs = html.match(/<img /gi) || [];
-    const imgsWithAlt =
-      html.match(/<img [^>]*alt=["'][^"']*["']/gi) || [];
+    const imgsWithAlt = html.match(/<img [^>]*alt=["'][^"']*["']/gi) || [];
 
     report += `✅ Page loaded successfully (internal: ${siteUrl})\n`;
     report += `🖼 Images with alt tags: ${imgsWithAlt.length} of ${allImgs.length}\n`;
@@ -98,21 +96,16 @@ async function runSEOAudit() {
     report += `\n📱 Mobile performance score (${psiSiteUrl}): ${psiData.mobileScore}\n`;
     metrics.forEach(
       m =>
-        (report += `${flagMetric(
-          m,
-          psiData.mobile[m]?.numericValue
-        )} ${m.toUpperCase()}: ${formatMetric(
+        (report += `${flagMetric(m, psiData.mobile[m]?.numericValue)} ${m.toUpperCase()}: ${formatMetric(
           m,
           psiData.mobile[m]?.numericValue
         )}\n`)
     );
+
     report += `\n💻 Desktop performance score (${psiSiteUrl}): ${psiData.desktopScore}\n`;
     metrics.forEach(
       m =>
-        (report += `${flagMetric(
-          m,
-          psiData.desktop[m]?.numericValue
-        )} ${m.toUpperCase()}: ${formatMetric(
+        (report += `${flagMetric(m, psiData.desktop[m]?.numericValue)} ${m.toUpperCase()}: ${formatMetric(
           m,
           psiData.desktop[m]?.numericValue
         )}\n`)
@@ -126,50 +119,35 @@ async function runSEOAudit() {
   // --- Sitemap & robots (internal) ---
   let sitemapUrls = [];
   try {
-    const sitemap = await (await import('axios')).default.get(
-      `${siteUrl}/sitemap.xml`
-    );
-    report += `✅ Sitemap accessible: ${sitemap.status}\n`;
-    sitemapUrls = (
-      sitemap.data.match(/<loc>(.*?)<\/loc>/gi) || []
-    ).map(m => m.replace(/<\/?loc>/g, ''));
+    const { data: sitemapData, status } = await axios.get(`${siteUrl}/sitemap.xml`);
+    report += `✅ Sitemap accessible: ${status}\n`;
+    sitemapUrls = (sitemapData.match(/<loc>(.*?)<\/loc>/gi) || []).map(m => m.replace(/<\/?loc>/g, ''));
   } catch {
     report += `❌ Sitemap not accessible\n`;
   }
 
   try {
-    const robots = await (await import('axios')).default.get(
-      `${siteUrl}/robots.txt`
-    );
-    report += `✅ robots.txt accessible: ${robots.status}\n`;
+    const { status } = await axios.get(`${siteUrl}/robots.txt`);
+    report += `✅ robots.txt accessible: ${status}\n`;
   } catch {
     report += `❌ robots.txt not accessible\n`;
   }
 
   // --- GA Top 5 & Suggestions ---
-  const { top5, suggestions } = await getGAInsights(
-    GA_PROPERTY_ID,
-    GA_KEY_FILE
-  );
+  const { top5, suggestions } = await getGAInsights(GA_PROPERTY_ID, GA_KEY_FILE);
   if (top5.length) {
     report += `\n=== Top 5 Pages Needing Attention ===\n`;
     top5.forEach(
       p =>
-        (report += `- ${p.path}: Bounce ${p.bounce}%, Session ${p.session.toFixed(
-          1
-        )}s, Engagement ${p.views}\n`)
+        (report += `- ${p.path}: Bounce ${p.bounce}%, Session ${p.session.toFixed(1)}s, Engagement ${p.views}\n`)
     );
   }
+
   report += `\n💡 AI SEO Suggestions:\n`;
   suggestions.forEach(s => (report += `- ${s}\n`));
 
   // --- Ghost URLs ---
-  const ghostUrls = await getGhostUrls(
-    GA_PROPERTY_ID,
-    GA_KEY_FILE,
-    siteUrl,
-    sitemapUrls
-  );
+  const ghostUrls = await getGhostUrls(GA_PROPERTY_ID, GA_KEY_FILE, siteUrl, sitemapUrls);
   if (ghostUrls.length) {
     report += `\n⚠ Google thinks these URLs exist but are missing locally:\n`;
     ghostUrls.forEach(u => (report += `- ${u}\n`));

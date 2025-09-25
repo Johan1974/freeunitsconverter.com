@@ -5,16 +5,29 @@ set -x
 # ---------------------------
 # Load environment variables from .env
 # ---------------------------
-set +H   # disables history expansion
+set +H
 set -o allexport
 source .env
 set +o allexport
 
 # ---------------------------
-# Determine project root dynamically (where .env is located)
+# Determine project root dynamically
 # ---------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$SCRIPT_DIR/.."   # one level up from scripts folder
+PROJECT_ROOT="$SCRIPT_DIR/.."
+
+# ---------------------------
+# Ensure minifiers are installed
+# ---------------------------
+echo "🔧 Checking for JS/CSS minifiers..."
+command -v uglifyjs >/dev/null 2>&1 || {
+    echo "uglify-js not found. Installing..."
+    npm install -g uglify-js
+}
+command -v csso >/dev/null 2>&1 || {
+    echo "csso-cli not found. Installing..."
+    npm install -g csso-cli
+}
 
 # ---------------------------
 # Files to swap URLs in
@@ -25,8 +38,6 @@ FILES_TO_SWAP=(
   # Add more files here if needed
 )
 
-
-
 # ---------------------------
 # Stop old production containers
 # ---------------------------
@@ -36,10 +47,10 @@ docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml down
 # ---------------------------
 # Ensure Certbot challenge folder exists
 # ---------------------------
-CERTBOT_WWW="./certbot/www"
+CERTBOT_WWW="$PROJECT_ROOT/certbot/www"
 mkdir -p "$CERTBOT_WWW/.well-known/acme-challenge"
 
-CERT_PATH="./certbot/conf/live/freeunitsconverter.com/fullchain.pem"
+CERT_PATH="$PROJECT_ROOT/certbot/conf/live/freeunitsconverter.com/fullchain.pem"
 if [ ! -f "$CERT_PATH" ]; then
     echo "Certificates not found. Running temporary HTTP container for Certbot..."
     docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml up -d nginx_http
@@ -66,24 +77,33 @@ done
 # Make frontend folder writable
 # ---------------------------
 echo "🔧 Ensuring frontend folder is writable..."
-sudo chown -R $USER:$USER ./frontend
+sudo chown -R $USER:$USER "$PROJECT_ROOT/frontend"
 
 # ---------------------------
 # Generate static pages & sitemap for production
 # ---------------------------
 echo "🔄 Generating static converter pages & sitemap..."
-cd frontend
+cd "$PROJECT_ROOT/frontend"
 node generate-pages.js prd
 node generate-sitemap.js
-cd ..
+cd "$PROJECT_ROOT"
 echo "✅ Static pages and sitemap generated."
+
+# ---------------------------
+# Minify JS and CSS
+# ---------------------------
+echo "🔧 Minifying JS and CSS for production..."
+uglifyjs "$PROJECT_ROOT/frontend/app.js" -o "$PROJECT_ROOT/frontend/app.min.js" -c -m
+uglifyjs "$PROJECT_ROOT/frontend/converters.js" -o "$PROJECT_ROOT/frontend/converters.min.js" -c -m
+csso "$PROJECT_ROOT/frontend/style.css" -o "$PROJECT_ROOT/frontend/style.min.css"
+echo "✅ Minified JS and CSS generated."
 
 # ---------------------------
 # Copy static pages into seo_audit folder
 # ---------------------------
 echo "🔄 Copying static-pages into seo_audit folder..."
-rm -rf seo_audit/static-pages
-cp -r frontend/static-pages seo_audit/
+rm -rf "$PROJECT_ROOT/seo_audit/static-pages"
+cp -r "$PROJECT_ROOT/frontend/static-pages" "$PROJECT_ROOT/seo_audit/"
 echo "✅ static-pages copied."
 
 # ---------------------------
