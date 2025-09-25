@@ -21,6 +21,7 @@ certbot/www/
 certbot/conf/accounts/
 certbot/conf/archive/
 certbot/conf/live/
+certbot/conf/renewal/
 
 # Ignore IDE/editor configuration directories
 .vscode/
