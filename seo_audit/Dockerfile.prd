@@ -3,6 +3,9 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
+# Install curl
+RUN apk add --no-cache curl bash
+
 # Copy only package files first to leverage cache
 COPY package*.json ./
 
@@ -12,5 +15,4 @@ RUN npm install --production
 # Copy all SEO audit source code, including static-pages
 COPY . .
 
-# Run the SEO audit script
-CMD ["node", "run_audit_prd.js"]
+# No CMD here — let docker-compose control it

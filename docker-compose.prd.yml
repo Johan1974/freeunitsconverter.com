@@ -1,4 +1,5 @@
 
+
 services:
   frontend:
     build:
@@ -6,6 +7,11 @@ services:
       dockerfile: Dockerfile.prd
     container_name: freeunitsconverter_prd-frontend
     restart: unless-stopped
+    networks:
+      - freeunitsconverter_prd
+    environment:
+      - SITE_URL_INT=${SITE_URL_INT}   # internal container URL
+      - SITE_URL_EXT=${SITE_URL_PRD}     # external URL used for SEO, canonical, CSS
 
   backend:
     build:
@@ -13,9 +19,10 @@ services:
       dockerfile: Dockerfile
     container_name: freeunitsconverter_prd-backend
     restart: unless-stopped
+    networks:
+      - freeunitsconverter_prd
 
   nginx:
-    # image: nginx:latest
     image: fholzer/nginx-brotli:latest
     container_name: freeunitsconverter_prd-nginx
     ports:
@@ -25,9 +32,10 @@ services:
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf:/etc/letsencrypt
     restart: unless-stopped
+    networks:
+      - freeunitsconverter_prd
 
   nginx_http:
-    # image: nginx:latest
     image: fholzer/nginx-brotli:latest
     container_name: freeunitsconverter_prd-nginx_http
     volumes:
@@ -37,6 +45,8 @@ services:
       - "80:80"
     command: ["nginx", "-g", "daemon off;"]
     restart: "no"
+    networks:
+      - freeunitsconverter_prd
 
   certbot:
     image: certbot/certbot
@@ -45,10 +55,12 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     restart: "no"
+    networks:
+      - freeunitsconverter_prd
 
   seo_audit:
     build:
-      context: ./seo_audit      # ✅ Folder, not Dockerfile
+      context: ./seo_audit
       dockerfile: Dockerfile.prd
     container_name: freeunitsconverter_prd-seo_audit
     environment:
@@ -60,12 +72,25 @@ services:
       - GA_PROPERTY_ID=${GA_PROPERTY_ID}
       - GA_TAG_ID=${GA_TAG_ID}
       - PSI_API_KEY=${PSI_API_KEY}
-      - SITE_URL_INT=${SITE_URL_INT}  # internal Docker URL   
-      - SITE_URL_EXT=${SITE_URL_DEV}  # external URL used for SEO, canonical, CSS
+      - SITE_URL_INT=http://frontend:80
+      - SITE_URL_EXT=${SITE_URL_PRD}
     restart: unless-stopped
-    command: ["node", "run_audit_prd.js"]
+    command:
+      - bash
+      - -c
+      - |
+        echo "⏳ Waiting for frontend to be ready...";
+        until curl -sSf ${SITE_URL_INT} > /dev/null; do
+          echo "Waiting for frontend...";
+          sleep 2;
+        done;
+        echo "✅ Frontend ready, starting SEO audit...";
+        node run_audit_prd.js
+    networks:
+      - freeunitsconverter_prd
 
 
 
-
-
+networks:
+  freeunitsconverter_prd:
+    driver: bridge

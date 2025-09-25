@@ -53,7 +53,7 @@ services:
       - -c
       - |
         echo "⏳ Waiting for frontend to be ready...";
-        until curl -sSf http://frontend:80 > /dev/null; do
+        until curl -sSf ${SITE_URL_INT} > /dev/null; do
           echo "Waiting for frontend...";
           sleep 2;
         done;
