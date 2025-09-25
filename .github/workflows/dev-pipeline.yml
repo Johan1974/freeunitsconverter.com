@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - development
+      - mobile-design
 
 jobs:
   build-and-seo:

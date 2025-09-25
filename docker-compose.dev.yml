@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> mobile-design
 services:
   frontend:
     build:
@@ -13,6 +16,10 @@ services:
     restart: unless-stopped
     networks:
       - freeunitsconverter_dev
+    environment:
+      - SITE_URL_INT=${SITE_URL_INT}  # internal Docker URL   
+      - SITE_URL_EXT=${SITE_URL_DEV}  # external URL used for SEO, canonical, CSS
+ 
 
   backend:
     build:
@@ -39,11 +46,12 @@ services:
       - GA_PROPERTY_ID=${GA_PROPERTY_ID}
       - GA_TAG_ID=${GA_TAG_ID}
       - PSI_API_KEY=${PSI_API_KEY}
-      - SITE_URL=http://frontend:80
-      - PSI_SITE_URL=http://freeunitsconverter.com:8080/
+      - SITE_URL_INT=${SITE_URL_INT}  # internal Docker URL   
+      - SITE_URL_EXT=${SITE_URL_DEV}  # external URL used for SEO, canonical, CSS
+      
     volumes:
       - ./frontend/static-pages:/usr/src/app/static-pages:ro
-    restart: "no"
+    restart: unless-stopped
     command:
       - bash
       - -c

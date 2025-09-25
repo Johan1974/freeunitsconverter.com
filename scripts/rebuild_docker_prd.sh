@@ -1,6 +1,35 @@
 #!/bin/bash
 set -e
+set -x
 
+# ---------------------------
+# Load environment variables from .env
+# ---------------------------
+set +H   # disables history expansion
+set -o allexport
+source .env
+set +o allexport
+
+# ---------------------------
+# Determine project root dynamically (where .env is located)
+# ---------------------------
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$SCRIPT_DIR/.."   # one level up from scripts folder
+
+# ---------------------------
+# Files to swap URLs in
+# ---------------------------
+FILES_TO_SWAP=(
+  "$PROJECT_ROOT/frontend/index.html"
+  "$PROJECT_ROOT/frontend/app.js"
+  # Add more files here if needed
+)
+
+
+
+# ---------------------------
+# Stop old production containers
+# ---------------------------
 echo "Stopping old production containers..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml down
 
@@ -26,23 +55,31 @@ if [ ! -f "$CERT_PATH" ]; then
 fi
 
 # ---------------------------
-# 0️⃣ Make frontend folder writable
+# Swap URLs to PRD before building
+# ---------------------------
+echo "🔄 Replacing dev URL with PRD URL in files..."
+for f in "${FILES_TO_SWAP[@]}"; do
+    sed -i "s|$SITE_URL_DEV|$SITE_URL_PRD|g" "$f"
+done
+
+# ---------------------------
+# Make frontend folder writable
 # ---------------------------
 echo "🔧 Ensuring frontend folder is writable..."
 sudo chown -R $USER:$USER ./frontend
 
 # ---------------------------
-# 1️⃣ Generate static pages & sitemap
+# Generate static pages & sitemap for production
 # ---------------------------
 echo "🔄 Generating static converter pages & sitemap..."
 cd frontend
-node generate-pages.js
+node generate-pages.js prd
 node generate-sitemap.js
 cd ..
 echo "✅ Static pages and sitemap generated."
 
 # ---------------------------
-# 1b️⃣ Copy static pages into seo_audit folder for prod build
+# Copy static pages into seo_audit folder
 # ---------------------------
 echo "🔄 Copying static-pages into seo_audit folder..."
 rm -rf seo_audit/static-pages
@@ -50,14 +87,22 @@ cp -r frontend/static-pages seo_audit/
 echo "✅ static-pages copied."
 
 # ---------------------------
-# 2️⃣ Build and start main production containers
+# Build and start main production containers
 # ---------------------------
 echo "Building and starting production containers..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml up -d --build frontend backend nginx
 echo "✅ Production environment is up with HTTPS enabled."
 
 # ---------------------------
-# 3️⃣ Verify compression
+# Restore URLs back to DEV
+# ---------------------------
+echo "↩️ Restoring dev URLs in files..."
+for f in "${FILES_TO_SWAP[@]}"; do
+    sed -i "s|$SITE_URL_PRD|$SITE_URL_DEV|g" "$f"
+done
+
+# ---------------------------
+# Verify compression
 # ---------------------------
 echo "🔍 Verifying compression..."
 BROTLI_CHECK=$(curl -s -I -H "Accept-Encoding: br" https://freeunitsconverter.com | grep -i "Content-Encoding")
@@ -68,13 +113,13 @@ echo "Gzip test headers: $GZIP_CHECK"
 echo "✅ Compression verification complete."
 
 # ---------------------------
-# 4️⃣ Remove old SEO audit container if exists
+# Remove old SEO audit container if exists
 # ---------------------------
 echo "🔄 Removing old SEO audit container if exists..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml rm -sf seo_audit
 
 # ---------------------------
-# 5️⃣ Build and start SEO audit container
+# Build and start SEO audit container
 # ---------------------------
 echo "Building and starting SEO audit container..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml up -d --build seo_audit

@@ -24,6 +24,7 @@ body {
   padding: 32px;
 }
 a { color: inherit; text-decoration: none; }
+p { margin: 0 0 12px; }
 
 /* ---------- Layout ---------- */
 .container {
@@ -50,22 +51,28 @@ header {
 
 nav a { margin-left: 18px; color: var(--muted); font-size: 14px; }
 
-.hero { background: transparent; padding: 28px 18px 12px; }
+.hero { padding: 28px 18px 12px; text-align: center; }
 .title { font-family: Poppins; font-size: 40px; margin: 6px 0 8px; }
-.subtitle { color: var(--muted); margin: 0 0 18px; }
+.subtitle { color: var(--muted); margin-bottom: 18px; }
 
-/* main grid with optional sidebar */
+/* ---------- Main grid ---------- */
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 300px;
   gap: 20px;
   align-items: start;
 }
+
 @media (max-width: 900px) {
-  .main-grid { grid-template-columns: 1fr; }
+  .main-grid {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+  }
+  aside { order: 2; } /* sidebar below main */
+  #conversionGuide { order: 1; margin-top: 16px; } /* guide below converter */
 }
 
-/* card */
+/* ---------- Cards ---------- */
 .card {
   background: var(--card);
   border-radius: var(--radius);
@@ -73,9 +80,9 @@ nav a { margin-left: 18px; color: var(--muted); font-size: 14px; }
   padding: 18px;
 }
 
-/* converter box */
+/* ---------- Converter ---------- */
 .converter { display: flex; flex-direction: column; gap: 12px; }
-.row { display: flex; gap: 10px; align-items: center; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
 /* ---------- Inputs ---------- */
 .input, .select {
@@ -85,10 +92,11 @@ nav a { margin-left: 18px; color: var(--muted); font-size: 14px; }
   font-size: 16px;
   background: white;
   flex: 1;
+  min-width: 80px;
 }
 .select { max-width: 180px; }
 
-/* ---------- Unified Buttons ---------- */
+/* ---------- Buttons ---------- */
 .button, .tab, .converter-tab {
   background: var(--accent);
   color: white;
@@ -126,7 +134,7 @@ nav a { margin-left: 18px; color: var(--muted); font-size: 14px; }
   margin-bottom: 16px;
 }
 
-/* result box */
+/* ---------- Result box ---------- */
 .result {
   padding: 12px;
   border-radius: 8px;
@@ -134,15 +142,16 @@ nav a { margin-left: 18px; color: var(--muted); font-size: 14px; }
   border: 1px solid #e0f3e6;
   color: var(--success);
   font-weight: 600;
+  word-wrap: break-word;
 }
 
-/* meta text */
+/* ---------- Meta text ---------- */
 .meta { font-size: 13px; color: var(--muted); }
 
-/* sidebar content */
+/* ---------- Sidebar ---------- */
 aside .card { position: sticky; top: 24px; }
 
-/* history / favorites */
+/* ---------- History / Favorites ---------- */
 .list { display: flex; flex-direction: column; gap: 8px; }
 .list button {
   background: transparent;
@@ -154,11 +163,13 @@ aside .card { position: sticky; top: 24px; }
 }
 .fav { float: right; color: gold; }
 
-/* footer */
+/* ---------- Footer ---------- */
 footer { margin-top: 18px; padding: 18px; text-align: center; color: var(--muted); }
 
-/* accessibility focus */
-.input:focus, .select:focus, .button:focus, .tab:focus, .converter-tab:focus { outline: 3px solid rgba(45,156,219,0.18); }
+/* ---------- Accessibility focus ---------- */
+.input:focus, .select:focus, .button:focus, .tab:focus, .converter-tab:focus {
+  outline: 3px solid rgba(45,156,219,0.18);
+}
 
 /* ---------- Utilities ---------- */
 .mt-14 { margin-top: 14px; }
@@ -173,3 +184,15 @@ footer { margin-top: 18px; padding: 18px; text-align: center; color: var(--muted
 
 /* ---------- Hide sidebar categories ---------- */
 #categories { display: none !important; }
+
+/* ---------- Mobile adjustments ---------- */
+@media (max-width: 600px){
+  body { padding: 16px; }
+  .title { font-size: 28px; }
+  .subtitle { font-size: 16px; }
+  .converter .row { flex-direction: column; gap: 8px; }
+  .input, .select, .button, .tab { width: 100%; max-width: 100%; }
+  .converter-tab { min-width: unset; }
+  .result { font-size: 14px; word-wrap: break-word; }
+  .seo-text { font-size: 14px; line-height: 1.4; }
+}

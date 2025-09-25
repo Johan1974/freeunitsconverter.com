@@ -1,48 +1,167 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>kilogram to ounce Converter | Free Units Converter</title>
-  <meta name="description" content="Convert kilogram to ounce instantly with our free, accurate, and easy-to-use weight converter.">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>kilogram to ounce Converter | Free Units Converter</title>
+    <link rel="icon" href="https://freeunitsconverter.com/favicon.ico" type="image/x-icon" />
 
-  <!-- Canonical always points to PROD -->
-  <link rel="canonical" href="https://freeunitsconverter.com/weight/kilogram-to-ounce/">
+    <meta name="description" content="Convert kilogram to ounce instantly with our free, accurate, and easy-to-use weight converter.">
+    <link rel="canonical" href="https://freeunitsconverter.com/weight/kilogram-to-ounce/"> 
 
-  <!-- Minimal Critical CSS -->
-  <style>
-    html,body{margin:0;padding:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:#111;background:#fff}
-    .site{max-width:980px;margin:0 auto;padding:16px}
-    h1{margin-bottom:20px;font-size:1.5rem}
-  </style>
-
-  <!-- Full CSS loaded asynchronously -->
-  <link rel="stylesheet" href="/style.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="/style.css"></noscript>
-
-  <!-- JSON-LD structured data -->
-  <script type="application/ld+json">
-    {
+    <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "kilogram to ounce Converter",
-  "url": "http://localhost:8080/weight/kilogram-to-ounce/",
+  "url": "https://freeunitsconverter.com/weight/kilogram-to-ounce/",
   "description": "Convert kilogram to ounce instantly with our free, accurate, and easy-to-use weight converter.",
   "mainEntity": {
     "@type": "UnitConversion",
     "fromUnit": "kilogram",
     "toUnit": "ounce"
   }
-}
-  </script>
-</head>
-<body>
-  <div class="site">
-    <h1>kilogram to ounce Converter</h1>
-    <div id="app"></div>
-  </div>
+}</script>
 
-  <!-- Deferred JS -->
-  <script defer src="/app.js"></script>
-</body>
+    <!-- MathJax -->
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+        svg: { fontCache: 'global' }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" id="main-style" href="https://freeunitsconverter.com/style.css">
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HX0YW2Z8WS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HX0YW2Z8WS');
+    </script>
+
+    <!-- SITE URLS from environment -->
+    <script>
+      window.SITE_URL_INT = "http://frontend:80";
+      window.SITE_URL_EXT = "https://freeunitsconverter.com/";
+
+      console.log("Internal URL:", window.SITE_URL_INT);
+      console.log("External URL:", window.SITE_URL_EXT);
+    </script>
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <div class="logo">Free Units Converter</div>
+        <nav aria-label="Main navigation">
+          <a href="#categories">Categories</a>
+          <a href="#conversionGuide">Conversion Guide</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </header>
+
+      <section class="hero" style="padding: 2rem 1rem; text-align: center; background-color: #f9f9f9; border-radius: 8px;">
+        <h1 class="title" style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700;">Convert any unit instantly</h1>
+        <p class="subtitle" style="font-size: 1.1rem; margin-bottom: 1rem; color: #333;">
+          Simple · Fast · Accurate — Save favorites and view recent conversions
+        </p>
+
+        <hr style="border: none; border-top: 5px solid #ccc; margin: 1.5rem auto; width: 150px;">
+
+        <p class="seo-text" style="font-size: 0.95rem; color: #555; line-height: 1.5; max-width: 700px; margin: 0 auto;">
+          Free Units Converter lets you quickly and accurately convert units of <strong>length, weight, temperature, and volume</strong>. 
+          Instantly convert <em>meters to feet, kilograms to pounds, liters to gallons, and Celsius to Fahrenheit</em>. 
+          Save your favorite conversions and review your recent calculations directly in your browser.
+        </p>
+      </section>
+
+      <main class="main-grid">
+        <div>
+          <!-- Converter -->
+          <section class="card converter" aria-label="Converter">
+            <div class="tabs" id="categoryTabs" role="tablist" aria-label="Categories"></div>
+            <div id="converterArea">
+              <div class="row">
+                <input id="valueInput" class="input" type="text" inputmode="decimal" aria-label="Value to convert" placeholder="Enter a number (e.g. 100)">
+                <select id="fromSelect" class="select" aria-label="From unit"></select>
+                <select id="toSelect" class="select" aria-label="To unit"></select>
+              </div>
+
+              <div class="row">
+                <button id="convertBtn" class="button" aria-label="Convert">Convert</button>
+                <button id="swapBtn" class="tab" title="Swap units">⇄ Swap</button>
+                <button id="saveFavBtn" class="tab" title="Save as favorite">★ Save</button>
+              </div>
+
+              <div id="resultBox" class="result" role="status" aria-live="polite"></div>
+              <p class="meta">Tip: use the arrow keys to open dropdowns. Temperature conversions support formulas.</p>
+            </div>
+          </section>
+
+          <!-- Conversion Guide -->
+          <section class="card mt-14" id="conversionGuide">
+            <h2>Conversion Guide</h2>
+            <div id="guideContent">
+              <p>Select a category and units to see the conversion guide here.</p>
+            </div>
+          </section>
+        </div>
+
+        <aside>
+          <div class="card" id="categories">
+            <h4>Categories</h4>
+            <div id="categoryLinks" class="tabs"></div>
+            <div class="spacer-12"></div>
+          </div>
+
+          <div class="card">
+            <h4>Quick tips</h4>
+            <ul>
+              <li>Use favorites for quick reuse</li>
+              <li>Shortcut keys: Enter = Convert</li>
+            </ul>
+          </div>
+
+          <section class="card mt-14">
+            <h3>Recent Conversions</h3>
+            <p class="meta">Your recent conversions are saved in your browser (localStorage).</p>
+            <div id="historyList" class="list" aria-live="polite"></div>
+            <button id="clearHistoryBtn" style="margin-top:1rem;">Clear All Recent</button>
+          </section>
+
+          <section class="card mt-14">
+            <h3>Favorites</h3>
+            <p class="meta">Saved favorite conversions for quick access.</p>
+            <div id="favList" class="list" aria-live="polite" style="margin-top:1rem;"></div>
+            <button id="clearFavoritesBtn" style="margin-top:1rem;">Clear All Favorites</button>
+          </section>
+        </aside>
+      </main>
+
+      <footer>
+        <p>
+          © <span id="year"></span> Free Units Converter · 
+          <a href="#privacy">Privacy Policy</a> · 
+          <a href="#contact">Contact</a>
+        </p>
+        <p class="meta">
+          Convert units of length, weight, temperature, and volume online for free. 
+          Fast, accurate, and simple — perfect for students, professionals, and everyday use.
+        </p>
+      </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://freeunitsconverter.com/converters.js"></script>
+    <script src="https://freeunitsconverter.com/app.js"></script>
+  </body>
 </html>

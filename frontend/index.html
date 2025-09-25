@@ -4,31 +4,37 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Free Units Converter — Convert Length, Weight, Temp & Volume</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="http://freeunitsconverter.com:8080/favicon.ico" type="image/x-icon" />
 
     <meta name="description" id="meta-description" content="Free Units Converter lets you quickly convert length, weight, temperature, and volume units online. Simple, fast, accurate and always free." />
-    <link rel="canonical" id="canonical-link" href="https://freeunitsconverter.com/">
+    <link rel="canonical" id="canonical-link" href="http://freeunitsconverter.com:8080/"> 
+
     <script type="application/ld+json" id="json-ld">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "url": "https://freeunitsconverter.com/",
-        "name": "Free Units Converter — Convert Length, Weight, Temp & Volume"
-      }
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "http://freeunitsconverter.com:8080/",
+      "name": "Free Units Converter — Convert Length, Weight, Temp & Volume"
+    }
     </script>
-    <!-- MathJax configuration -->
+
+    <!-- MathJax -->
     <script>
       window.MathJax = {
         tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
         svg: { fontCache: 'global' }
       };
     </script>
-    <script id="MathJax-script" async 
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
-    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://freeunitsconverter.com/style.css">
+
+    <!-- Main stylesheet -->
+    <link rel="stylesheet" id="main-style" href="http://freeunitsconverter.com:8080/style.css">
+
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HX0YW2Z8WS"></script>
     <script>
@@ -36,6 +42,15 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-HX0YW2Z8WS');
+    </script>
+
+    <!-- SITE URLS from environment -->
+    <script>
+      window.SITE_URL_INT = "http://frontend:80";
+      window.SITE_URL_EXT = "http://freeunitsconverter.com:8080/";
+
+      console.log("Internal URL:", window.SITE_URL_INT);
+      console.log("External URL:", window.SITE_URL_EXT);
     </script>
   </head>
 
@@ -95,7 +110,6 @@
               <p>Select a category and units to see the conversion guide here.</p>
             </div>
           </section>
-
         </div>
 
         <aside>
@@ -105,8 +119,6 @@
             <div class="spacer-12"></div>
           </div>
 
-          <!-- <div class="spacer-14"></div> -->
-
           <div class="card">
             <h4>Quick tips</h4>
             <ul>
@@ -115,7 +127,6 @@
             </ul>
           </div>
 
-          <!-- Recent Conversions -->
           <section class="card mt-14">
             <h3>Recent Conversions</h3>
             <p class="meta">Your recent conversions are saved in your browser (localStorage).</p>
@@ -123,15 +134,12 @@
             <button id="clearHistoryBtn" style="margin-top:1rem;">Clear All Recent</button>
           </section>
 
-          <!-- Favorites -->
           <section class="card mt-14">
             <h3>Favorites</h3>
             <p class="meta">Saved favorite conversions for quick access.</p>
             <div id="favList" class="list" aria-live="polite" style="margin-top:1rem;"></div>
             <button id="clearFavoritesBtn" style="margin-top:1rem;">Clear All Favorites</button>
           </section>
-
-
         </aside>
       </main>
 
@@ -148,7 +156,8 @@
       </footer>
     </div>
 
-    <script src="https://freeunitsconverter.com/converters.js"></script>
-    <script src="https://freeunitsconverter.com/app.js"></script>
+    <!-- Scripts -->
+    <script src="http://freeunitsconverter.com:8080/converters.js"></script>
+    <script src="http://freeunitsconverter.com:8080/app.js"></script>
   </body>
 </html>
