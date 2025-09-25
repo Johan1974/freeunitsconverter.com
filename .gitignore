@@ -41,3 +41,13 @@ ga-key.json
 certbot/conf/renewal/freeunitsconverter.com.conf
 
 
+# Generated frontend static pages
+/frontend/static-pages/**
+!/frontend/static-pages/.gitkeep
+!/frontend/static-pages/**/conversionguide.html
+
+# Ignore SEO audit static pages completely
+/seo_audit/static-pages/**
+
+
+frontend/static-pages/length/centimeter-to-foot/index.html

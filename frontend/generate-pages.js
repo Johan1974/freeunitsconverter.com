@@ -23,21 +23,22 @@ const baseTemplate = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8')
 const categories = [
   { id: 'length', label: 'Length', units: ['centimeter','meter','foot','inch'] },
   { id: 'weight', label: 'Weight', units: ['kilogram','pound','ounce'] },
+  // Add more categories & units as needed
 ];
 
 // -------------------------------
-// Load matching conversion guide
+// Load existing conversion guide
 // -------------------------------
 function loadConversionGuide(catId, fromUnit, toUnit) {
   const guidePath = path.join(__dirname, 'static-pages', catId, `${fromUnit}-to-${toUnit}`, 'conversionguide.html');
   if (fs.existsSync(guidePath)) {
     return fs.readFileSync(guidePath, 'utf8');
   }
-  return '<p>Select a category and units to see the conversion guide here.</p>';
+  return '<p>Conversion guide goes here.</p>';
 }
 
 // -------------------------------
-// Build HTML for a page
+// Build HTML for index.html page
 // -------------------------------
 function makeHtml(catId, catLabel, fromUnit, toUnit) {
   const prettyFrom = fromUnit.replace(/_/g, " ");
@@ -45,7 +46,6 @@ function makeHtml(catId, catLabel, fromUnit, toUnit) {
   const title = `${prettyFrom} to ${prettyTo} Converter | Free Units Converter`;
   const desc = `Convert ${prettyFrom} to ${prettyTo} instantly with our free, accurate, and easy-to-use ${catLabel.toLowerCase()} converter.`;
   const canonical = `${SITE_URL_EXT}${catId}/${fromUnit}-to-${toUnit}/`;
-  const guideHTML = loadConversionGuide(catId, fromUnit, toUnit);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -66,9 +66,8 @@ function makeHtml(catId, catLabel, fromUnit, toUnit) {
     .replace(/<link rel="canonical"[^>]+>/, `<link rel="canonical" href="${canonical}">`)
     .replace(/<script type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/,
              `<script type="application/ld+json">${JSON.stringify(jsonLd, null, 2)}</script>`)
-
-    // 🔥 New replacements for URLs
-    .replace(/http:\/\/freeunitsconverter\.com:8080\//g, SITE_URL_EXT)   // favicon, CSS, JS
+    // Replace URLs for CSS/JS/favicon
+    .replace(/http:\/\/freeunitsconverter\.com:8080\//g, SITE_URL_EXT)
     .replace(/window\.SITE_URL_EXT\s*=\s*".*?";/,
              `window.SITE_URL_EXT = "${SITE_URL_EXT}";`);
 }
@@ -84,8 +83,22 @@ categories.forEach(cat => {
       const folder = path.join(__dirname, 'static-pages', cat.id, `${fromUnit}-to-${toUnit}`);
       fs.mkdirSync(folder, { recursive: true });
 
+      // Add .gitkeep if folder is empty
+      const gitkeepPath = path.join(folder, '.gitkeep');
+      if (!fs.existsSync(gitkeepPath)) {
+        fs.writeFileSync(gitkeepPath, '', 'utf8');
+      }
+
+      // Generate index.html
+      const htmlPath = path.join(folder, 'index.html');
       const html = makeHtml(cat.id, cat.label, fromUnit, toUnit);
-      fs.writeFileSync(path.join(folder, 'index.html'), html, 'utf8');
+      fs.writeFileSync(htmlPath, html, 'utf8');
+
+      // Preserve existing conversion guide
+      const guidePath = path.join(folder, 'conversionguide.html');
+      if (!fs.existsSync(guidePath)) {
+        fs.writeFileSync(guidePath, '<p>Conversion guide goes here.</p>', 'utf8');
+      }
     });
   });
 });
