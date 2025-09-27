@@ -144,3 +144,7 @@ docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml rm -sf seo_au
 echo "Building and starting SEO audit container..."
 docker compose -p freeunitsconverter_prd -f docker-compose.prd.yml up -d --build seo_audit
 echo "✅ SEO audit container is up."
+
+
+echo "✅ Production environment is up."
+echo "https://freeunitsconverter.com" 
