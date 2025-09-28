@@ -24,7 +24,6 @@ function loadGoogleAnalytics(id) {
   const debug = location.search.includes("debug_mode=true");
   gtag("js", new Date());
   gtag("config", id, { debug_mode: debug });
-
   console.log("GA4 initialized", { id, debug_mode: debug });
 }
 
@@ -78,48 +77,32 @@ async function loadConversionGuide(catId, fromUnit, toUnit) {
     if (!resp.ok) throw new Error("Failed to load forward conversion guide");
 
     let html = await resp.text();
-    console.log("Fetched HTML for forward path:", html); // Log fetched content
-
     if (html.includes("<html")) throw new Error("Invalid HTML content");
-
     DOM.guideContentEl.innerHTML = html;
-    console.log("Inserted HTML for forward path:", html); // Log inserted content
-    return; // If successful, stop here
+    return;
 
   } catch (error) {
-    console.log("Error with forward path:", error); // Log the error
-
     snippetPath = buildPath(normalizedBaseURL, 'static-pages', catId, reverseFolder, 'conversionguide.html');
     try {
       let respRev = await fetch(snippetPath, { cache: "no-store" });
       if (!respRev.ok) throw new Error("Failed to load reverse conversion guide");
 
       let htmlRev = await respRev.text();
-      console.log("Fetched HTML for reverse path:", htmlRev); // Log fetched content for reverse
-
       if (htmlRev.includes("<html")) throw new Error("Invalid HTML content for reverse");
-
       DOM.guideContentEl.innerHTML = htmlRev;
-      console.log("Inserted HTML for reverse path:", htmlRev); // Log inserted content for reverse
       return;
 
     } catch (error) {
-      console.log("Error with reverse path:", error); // Log error for reverse
       try {
         const defaultResp = await fetch(buildPath(normalizedBaseURL, 'conversionguide-default.html'), { cache: "no-store" });
         let defaultHtml = await defaultResp.text();
-        console.log("Fetched default HTML:", defaultHtml); // Log the default content
-
         DOM.guideContentEl.innerHTML = defaultHtml;
-      } catch (defaultError) {
-        console.log("Error loading default guide:", defaultError); // Log error for default
+      } catch {
         DOM.guideContentEl.innerHTML = "<p>Conversion guide is not available at the moment.</p>";
       }
     }
   }
 }
-
-
 
 // -------------------------------
 // Result / History / Favorites
@@ -226,6 +209,7 @@ function convert() {
   showResult(text, true);
   pushHistory({cat:cat.id, from, to, value, out, ts:Date.now()});
   loadConversionGuide(cat.id, from, to);
+  updateURL(cat.id, from, to);
 
   if(typeof gtag==="function"){
     gtag("event","unit_combo",{unit_combo:`${from}→${to}`, debug_mode: location.search.includes("debug_mode=true")});
@@ -261,6 +245,36 @@ function populateUnitSelects(cat, fromUnit=null, toUnit=null){
 }
 
 // -------------------------------
+// URL handling
+// -------------------------------
+function updateURL(catId, from, to) {
+  const expectedURL = `/${catId}/${from}-to-${to}/`;
+  if(location.pathname !== expectedURL){
+    history.replaceState(null, '', expectedURL);
+  }
+}
+
+function handleURLUnitCombo() {
+  const path = location.pathname.replace(/^\/|\/$/g, '');
+  const parts = path.split('/');
+  if (parts.length === 2) {
+    const [catId, combo] = parts;
+    const units = combo.split('-to-');
+    if (units.length === 2) {
+      const [from, to] = units;
+      const cat = window.CONVERTERS.find(c => c.id === catId);
+      if (cat && cat.units[from] && cat.units[to]) {
+        setActiveCategory(catId);
+        DOM.fromSelect.value = from;
+        DOM.toSelect.value = to;
+        loadConversionGuide(catId, from, to);
+        convert();
+      }
+    }
+  }
+}
+
+// -------------------------------
 // Tabs & categories
 // -------------------------------
 function renderTabs(){
@@ -291,50 +305,34 @@ function setActiveCategory(id){
   $$(`.tab[data-route='/${cat.id}']`).forEach(b=>b.classList.add("active"));
 
   populateUnitSelects(cat);
+
+  const from = DOM.fromSelect.value;
+  const to = DOM.toSelect.value;
+
+  // ✅ Immediately update URL for startup
+  updateURL(cat.id, from, to);
+
   if(DOM.resultBox) DOM.resultBox.style.display="none";
-
-  loadConversionGuide(cat.id, DOM.fromSelect.value, DOM.toSelect.value);
+  loadConversionGuide(cat.id, from, to);
 }
 
 // -------------------------------
-// Handle URL unit combos
-// -------------------------------
-function handleURLUnitCombo() {
-  const path = location.pathname.replace(/^\/|\/$/g, '');
-  const parts = path.split('/');
-  if (parts.length === 2) {
-    const [catId, combo] = parts;
-    const units = combo.split('-to-');
-    if (units.length === 2) {
-      const [from, to] = units;
-      const cat = window.CONVERTERS.find(c => c.id === catId);
-      if (cat && cat.units[from] && cat.units[to]) {
-        setActiveCategory(catId);
-        DOM.fromSelect.value = from;
-        DOM.toSelect.value = to;
-        loadConversionGuide(catId, from, to);
-        convert();
-        history.replaceState(null, '', '/');
-      }
-    }
-  }
-}
-
-// -------------------------------
-// Initialize UI
+// UI bindings
 // -------------------------------
 function bindUI(){
   DOM.convertBtn.addEventListener("click", convert);
   DOM.swapBtn.addEventListener("click", swapUnits);
   DOM.saveFavBtn.addEventListener("click", saveFavorite);
 
-  DOM.fromSelect.addEventListener("change", ()=>{
+  DOM.fromSelect.addEventListener("change", ()=>{ 
     const cat = window.CONVERTERS.find(c=>c.id===activeCategory);
     loadConversionGuide(cat.id, DOM.fromSelect.value, DOM.toSelect.value);
+    updateURL(cat.id, DOM.fromSelect.value, DOM.toSelect.value);
   });
-  DOM.toSelect.addEventListener("change", ()=>{
+  DOM.toSelect.addEventListener("change", ()=>{ 
     const cat = window.CONVERTERS.find(c=>c.id===activeCategory);
     loadConversionGuide(cat.id, DOM.fromSelect.value, DOM.toSelect.value);
+    updateURL(cat.id, DOM.fromSelect.value, DOM.toSelect.value);
   });
 
   $("#clearFavoritesBtn")?.addEventListener("click", ()=>{
@@ -354,6 +352,9 @@ function bindUI(){
   });
 }
 
+// -------------------------------
+// Initialization
+// -------------------------------
 function init(){
   DOM.yearEl.textContent = new Date().getFullYear();
   bindUI();
@@ -366,7 +367,7 @@ function init(){
 }
 
 // -------------------------------
-// DOM references
+// DOM references & start
 // -------------------------------
 document.addEventListener("DOMContentLoaded", ()=>{
   DOM.tabsEl = $("#categoryTabs");

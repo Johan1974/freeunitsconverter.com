@@ -4,6 +4,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.dev
     container_name: freeunitsconverter_dev-frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
     restart: unless-stopped
     networks:
       - freeunitsconverter_dev
@@ -40,13 +42,20 @@ services:
       dockerfile: Dockerfile.dev
     container_name: freeunitsconverter_dev-seo_audit
     environment:
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_TO=${EMAIL_TO}
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_PORT=${EMAIL_PORT}
+      - GA_PROPERTY_ID=${GA_PROPERTY_ID}
+      - GA_TAG_ID=${GA_TAG_ID}
+      - PSI_API_KEY=${PSI_API_KEY}
       - SITE_URL_INT=${SITE_URL_INT}
       - SITE_URL_EXT=${SITE_URL_DEV}
-      # other env vars...
     volumes:
       - ./frontend/static-pages:/usr/src/app/static-pages:ro
     restart: unless-stopped
-    command: ["bash", "-c", "until curl -sSf ${SITE_URL_INT} > /dev/null; do sleep 2; done; node run_audit_dev.js"]
+    command: ["bash", "-c", "until curl -sSf -H 'Host: freeunitsconverter.com' ${SITE_URL_INT} > /dev/null; do sleep 2; done; node run_audit_dev.js"]
     networks:
       - freeunitsconverter_dev
 
