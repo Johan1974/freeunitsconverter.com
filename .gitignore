@@ -48,6 +48,11 @@ certbot/conf/renewal/freeunitsconverter.com.conf
 !/frontend/static-pages/**/conversionguide.html
 /frontend/sitemap.xml
 
+!frontend/static-pages/length/index.html
+!frontend/static-pages/temperature/index.html
+!frontend/static-pages/volume/index.html
+!frontend/static-pages/weight/index.html
+
 
 # Ignore SEO audit static pages completely
 /seo_audit/static-pages/**
