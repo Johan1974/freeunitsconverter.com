@@ -10,7 +10,7 @@ RUN apk add --no-cache curl bash
 COPY package*.json ./
 
 # Install dependencies (production only)
-RUN npm install --production
+RUN npm install
 
 # Copy all SEO audit source code, including static-pages
 COPY . .

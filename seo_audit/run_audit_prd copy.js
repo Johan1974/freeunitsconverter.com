@@ -7,13 +7,14 @@ import moment from 'moment-timezone';
 import axios from 'axios';
 
 import {
+  flagMetric,
+  formatMetric,
   getGAInsights,
   scanStaticPagesFolder,
   getGhostUrls,
   runPSI,
   checkBrokenLinks,
-  crawlPagesForKeywords,
-  generateAISEOTasks
+  generateSEODailyToDo
 } from './seo_helpers.js';
 
 dotenv.config();
@@ -32,9 +33,6 @@ const EMAIL_PORT = parseInt(process.env.EMAIL_PORT || '587', 10);
 const TIMEZONE = process.env.TIMEZONE || 'Europe/Amsterdam';
 const PSI_API_KEY = process.env.PSI_API_KEY;
 
-// --- Keywords to track ---
-const targetKeywords = ['length', 'temperature', 'volume', 'weight', 'conversion'];
-
 // --- Nodemailer ---
 const transporter = nodemailer.createTransport({
   host: EMAIL_HOST,
@@ -43,19 +41,19 @@ const transporter = nodemailer.createTransport({
   auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
+// Ensure report directory exists
 if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir, { recursive: true });
 
 // --- Main SEO Audit ---
 async function runSEOAudit() {
   const timestamp = moment().tz(TIMEZONE).format('YYYY-MM-DD_HH-mm-ss');
   const reportFile = path.join(reportDir, `seo_report_${timestamp}.txt`);
+
   let report = `SEO Audit Report for ${siteUrl}\nGenerated: ${moment().tz(TIMEZONE).format('dddd, MMMM Do YYYY, HH:mm:ss z')}\n\n`;
 
-  // --- Page HTML check ---
-  let html;
+  // --- Fetch site HTML ---
   try {
-    const resp = await axios.get(siteUrl);
-    html = resp.data;
+    const { data: html } = await axios.get(siteUrl);
     const allImgs = html.match(/<img /gi) || [];
     const imgsWithAlt = html.match(/<img [^>]*alt=["'][^"']*["']/gi) || [];
     report += `✅ Page loaded successfully\n🖼 Images with alt tags: ${imgsWithAlt.length} of ${allImgs.length}\n📄 Number of H1 tags: ${(html.match(/<h1/gi) || []).length}\n`;
@@ -63,11 +61,11 @@ async function runSEOAudit() {
     report += `❌ Error fetching page: ${err.message}\n`;
   }
 
-  // --- Static files ---
+  // --- Static pages ---
   const missingFiles = scanStaticPagesFolder(staticFolder);
   if (missingFiles.length) report += `\n❌ Missing static files:\n${missingFiles.map(f => `- ${f}`).join('\n')}\n`;
 
-  // --- PageSpeed Insights ---
+  // --- PageSpeed ---
   const psiData = await runPSI(siteUrl, PSI_API_KEY);
   if (psiData) {
     report += `\n📱 Mobile performance score: ${psiData.mobileScore}\n💻 Desktop performance score: ${psiData.desktopScore}\n`;
@@ -97,8 +95,8 @@ async function runSEOAudit() {
   // --- GA Insights ---
   const gaData = await getGAInsights(GA_PROPERTY_ID, GA_KEY_FILE);
   if (gaData.length) {
-    report += `\n=== Top 10 Pages Needing Attention ===\n`;
-    gaData.slice(0, 10).forEach(p => {
+    report += `\n=== Top 5 Pages Needing Attention ===\n`;
+    gaData.slice(0, 5).forEach(p => {
       report += `- ${p.path}: ${p.session ? p.session.toFixed(1) + 's' : 'N/A'} session, ${p.views || 'N/A'} pageviews\n`;
     });
   }
@@ -107,33 +105,15 @@ async function runSEOAudit() {
   const ghostUrls = getGhostUrls(gaData, siteUrl, staticFolder);
   if (ghostUrls.length) {
     report += `\n⚠ Ghost URLs detected:\n`;
-    ghostUrls.forEach(url => {
-      const inSitemap = sitemapUrls.includes(url) ? '✅ Present in sitemap' : '❌ Not Present in sitemap';
-      report += `- ${url} ${inSitemap}\n`;
-    });
+    ghostUrls.forEach(url => report += `- ${url}\n`);
   }
 
-  // --- Keyword analysis ---
-  const topPages = gaData.slice(0, 20).map(p => siteUrl + p.path);
-  const keywordResults = await crawlPagesForKeywords(topPages, targetKeywords);
-  report += '\n🔑 Keyword Analysis (Top Pages):\n';
-  keywordResults.forEach(p => {
-    if (p.error) {
-      report += `- ${p.url}: ❌ Error fetching page (${p.error})\n`;
-    } else {
-      report += `- ${p.url}:\n`;
-      p.keywords.forEach(k => {
-        report += `    • ${k.keyword}: ${k.count} occurrences ${k.count > 0 ? '✅' : '⚠'}\n`;
-      });
-    }
-  });
-
-  // --- AI-Prioritized SEO Tasks ---
-  const aiTasks = await generateAISEOTasks(gaData, keywordResults, missingFiles, ghostUrls, sitemapUrls);
-  if (aiTasks.length) {
-    report += `\n🤖 AI-Prioritized Daily SEO Tasks:\n`;
-    aiTasks.forEach((t, i) => {
-      report += `${i + 1}. ${t.task} | Reason: ${t.reason} | Priority: ${t.priority}\n`;
+  // --- Daily SEO To-Do ---
+  const seoToDo = await generateSEODailyToDo(gaData);
+  if (seoToDo.length) {
+    report += `\n📅 Daily SEO To-Do List:\n`;
+    seoToDo.forEach((p, i) => {
+      report += `${i + 1}. ${p.path} | Session: ${p.session || 'N/A'} | Pageviews: ${p.views || 0} | Notes: ${p.notes.join('; ')}\n`;
     });
   }
 
@@ -159,3 +139,4 @@ cron.schedule('0 9 * * *', () => {
   console.log('⏳ Running scheduled SEO audit...');
   runSEOAudit();
 }, { timezone: TIMEZONE });
+

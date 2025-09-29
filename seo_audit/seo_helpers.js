@@ -1,138 +1,147 @@
 // seo_helpers.js
+
 import fs from 'fs';
 import path from 'path';
-import psi from 'psi';
+import * as cheerio from 'cheerio';
+import dotenv from 'dotenv';
 import axios from 'axios';
 import pkg from 'broken-link-checker';
 const { SiteChecker } = pkg;
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
-export function flagMetric(name, value) {
-  switch (name) {
-    case 'first-contentful-paint': return value > 3 ? '⚠' : '✅';
-    case 'largest-contentful-paint': return value > 2.5 ? '⚠' : '✅';
-    case 'cumulative-layout-shift': return value > 0.1 ? '⚠' : '✅';
-    case 'total-blocking-time': return value > 300 ? '⚠' : '✅';
-    case 'speed-index': return value > 4 ? '⚠' : '✅';
-    default: return '';
-  }
+dotenv.config();
+
+// --- GA4 Insights ---
+export async function getGAInsights(propertyId, keyFile) {
+  const client = new BetaAnalyticsDataClient({ keyFile });
+  const [response] = await client.runReport({
+    property: `properties/${propertyId}`,
+    dimensions: [{ name: 'pagePath' }],
+    metrics: [{ name: 'screenPageViews' }, { name: 'averageSessionDuration' }],
+    dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }]
+  });
+
+  return response.rows.map(r => ({
+    path: r.dimensionValues[0].value,
+    views: parseInt(r.metricValues[0].value, 10),
+    session: parseFloat(r.metricValues[1].value)
+  }));
 }
 
-export function formatMetric(key, value) {
-  if (value === null || value === undefined) return 'N/A';
-  if (key === 'cumulative-layout-shift') return value.toFixed(3);
-  if (key === 'total-blocking-time') return `${(value / 1000).toFixed(1)} ms`;
-  return `${(value / 1000).toFixed(1)} s`;
+// --- Scan static pages folder ---
+export function scanStaticPagesFolder(folderPath) {
+  const missing = [];
+  const pages = [
+    'length/index.html','length/conversionguide.html',
+    'temperature/index.html','temperature/conversionguide.html',
+    'volume/index.html','volume/conversionguide.html',
+    'weight/index.html','weight/conversionguide.html'
+  ];
+  pages.forEach(f => { if (!fs.existsSync(path.join(folderPath, f))) missing.push(f); });
+  return missing;
 }
 
-export async function getGAInsights(GA_PROPERTY_ID, GA_KEY_FILE) {
-  if (!GA_PROPERTY_ID) return { top5: [], suggestions: ['GA_PROPERTY_ID not set'] };
-  const client = new BetaAnalyticsDataClient({ keyFile: GA_KEY_FILE });
+// --- Ghost URLs ---
+export function getGhostUrls(gaData, siteUrl, staticFolder) {
+  return gaData
+    .map((p,i) => siteUrl + p.path)
+    .filter((_, idx) => !fs.existsSync(path.join(staticFolder, gaData[idx].path)));
+}
+
+// --- PageSpeed Insights ---
+export async function runPSI(siteUrl, apiKey) {
   try {
-    const [response] = await client.runReport({
-      property: `properties/${GA_PROPERTY_ID}`,
-      dimensions: [{ name: 'pagePath' }],
-      metrics: [
-        { name: 'screenPageViews' },
-        { name: 'bounceRate' },
-        { name: 'averageSessionDuration' }
-      ],
-      dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
-      limit: 50
-    });
-
-    const pages = response.rows.map(row => ({
-      path: row.dimensionValues[0].value,
-      views: parseInt(row.metricValues[0].value),
-      bounce: parseFloat(row.metricValues[1].value),
-      session: parseFloat(row.metricValues[2].value)
-    }));
-
-    const top5 = pages
-      .filter(p => !['/', '/length', '/weight', '/volume', '/temperature'].includes(p.path))
-      .sort((a, b) => a.session - b.session)
-      .slice(0, 5);
-
-    const suggestions = [];
-    top5.forEach(p => {
-      if (p.session < 30) suggestions.push(`Page ${p.path} has low session duration (${p.session.toFixed(1)}s). Add engaging content.`);
-      if (p.views < 50) suggestions.push(`Page ${p.path} has low pageviews (${p.views}). Consider internal linking or promotion.`);
-      if (p.bounce > 70) suggestions.push(`Page ${p.path} has high bounce rate (${p.bounce.toFixed(1)}%). Review content/UX.`);
-    });
-
-    return { top5, suggestions: suggestions.length ? suggestions : ['No significant GA insights at this time.'] };
+    const { data } = await axios.get(
+      `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${siteUrl}&key=${apiKey}`
+    );
+    const score = data.lighthouseResult.categories.performance.score * 100;
+    return { mobileScore: score, desktopScore: score, audits: data.lighthouseResult.audits };
   } catch (err) {
-    console.error('❌ Failed to fetch GA4 data:', err.message);
-    return { top5: [], suggestions: ['GA insights unavailable.'] };
-  }
-}
-
-export function scanStaticPagesFolder(staticFolder) {
-  const missingFiles = [];
-
-  function scan(folderPath) {
-    if (!fs.existsSync(folderPath)) return;
-    const entries = fs.readdirSync(folderPath, { withFileTypes: true });
-    entries.forEach(e => {
-      if (e.isDirectory()) {
-        const dirPath = path.join(folderPath, e.name);
-        if (['length','weight','volume','temperature'].includes(e.name)) { scan(dirPath); return; }
-
-        const indexPath = path.join(dirPath, 'index.html');
-        const guidePath = path.join(dirPath, 'conversionguide.html');
-
-        if (!fs.existsSync(indexPath)) missingFiles.push(`Missing index.html in folder: ${path.relative(staticFolder, dirPath)}`);
-        if (!fs.existsSync(guidePath)) missingFiles.push(`Missing conversionguide.html in folder: ${path.relative(staticFolder, dirPath)}`);
-
-        scan(dirPath);
-      }
-    });
-  }
-
-  scan(staticFolder);
-  return [...new Set(missingFiles)];
-}
-
-export async function getGhostUrls(GA_PROPERTY_ID, GA_KEY_FILE, siteUrl, sitemapUrls) {
-  if (!GA_PROPERTY_ID) return [];
-  const client = new BetaAnalyticsDataClient({ keyFile: GA_KEY_FILE });
-  try {
-    const [response] = await client.runReport({
-      property: `properties/${GA_PROPERTY_ID}`,
-      dimensions: [{ name: 'pagePath' }],
-      metrics: [{ name: 'screenPageViews' }],
-      dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
-      limit: 1000
-    });
-
-    const indexedUrls = response.rows.map(r => r.dimensionValues[0].value);
-    const ghostUrls = indexedUrls.filter(u => !sitemapUrls.includes(u) && !u.match(/^\/(length|weight|volume|temperature)\//));
-    return ghostUrls.map(u => siteUrl.replace(/\/$/, '') + u);
-  } catch (err) {
-    console.error('❌ Failed to fetch Google-indexed URLs:', err.message);
-    return [];
-  }
-}
-
-export async function runPSI(siteUrl, PSI_API_KEY) {
-  try {
-    const mobile = await psi(siteUrl, { strategy: 'mobile', key: PSI_API_KEY });
-    const desktop = await psi(siteUrl, { strategy: 'desktop', key: PSI_API_KEY });
-    return { mobile: mobile.data.lighthouseResult.audits, desktop: desktop.data.lighthouseResult.audits, mobileScore: mobile.data.lighthouseResult.categories.performance.score * 100, desktopScore: desktop.data.lighthouseResult.categories.performance.score * 100 };
-  } catch (err) {
-    console.error('❌ PSI failed:', err.message);
+    console.error('PSI error', err.message);
     return null;
   }
 }
 
-export async function checkBrokenLinks(siteUrl) {
-  let report = '';
-  await new Promise(resolve => {
-    const sitechecker = new SiteChecker({}, {
-      link: result => { if (result.broken) report += `❌ Broken link: ${result.url.original} (Status: ${result.brokenReason})\n`; },
-      end: resolve
-    });
-    sitechecker.enqueue(siteUrl);
+// --- Broken links ---
+export function checkBrokenLinks(siteUrl) {
+  return new Promise(resolve => {
+    const broken = [];
+    const siteChecker = new SiteChecker(
+      { excludeExternalLinks: true },
+      {
+        link: result => { if (result.broken) broken.push(result.url.resolved); },
+        end: () => resolve(broken.length ? broken.join('\n') : '✅ No broken links detected')
+      }
+    );
+    siteChecker.enqueue(siteUrl);
   });
-  return report;
+}
+
+// --- Keyword analysis ---
+export function analyzeKeywords(htmlString, keywords) {
+  const $ = cheerio.load(htmlString);
+  const text = $('body').text().toLowerCase();
+  return keywords.map(k => ({ keyword: k, count: (text.match(new RegExp(k.toLowerCase(), 'g')) || []).length }));
+}
+
+export async function crawlPagesForKeywords(pageUrls = [], targetKeywords = []) {
+  const results = [];
+  for (const url of pageUrls) {
+    try {
+      const { data: html } = await axios.get(url);
+      results.push({ url, keywords: analyzeKeywords(html, targetKeywords) });
+    } catch (err) {
+      results.push({ url, error: err.message });
+    }
+  }
+  return results;
+}
+
+// --- Generate Daily SEO Tasks ---
+export async function generateSEODailyToDo(gaData) {
+  return gaData.map(p => ({
+    path: p.path,
+    session: p.session,
+    views: p.views,
+    notes: ['Check internal links','Improve meta description']
+  }));
+}
+
+// --- Growth & Monetization ---
+export function calculateGrowth(currentGA, previousGA) {
+  return currentGA.map(curr => {
+    const prev = previousGA.find(p => p.path === curr.path) || { views: 0, session: 0 };
+    const viewChange = prev.views ? ((curr.views - prev.views)/prev.views)*100 : 100;
+    const sessionChange = prev.session ? ((curr.session - prev.session)/prev.session)*100 : 100;
+    return { path: curr.path, views: curr.views, viewChange, sessionChange, session: curr.session };
+  });
+}
+
+export function estimateMonetization(totalViewsPerMonth) {
+  if (totalViewsPerMonth >= 50000) return { ready: true, note: 'Traffic sufficient for monetization.' };
+  if (totalViewsPerMonth >= 10000) return { ready: false, note: 'Traffic growing; monetization possible soon.' };
+  return { ready: false, note: 'Traffic low; focus on growth.' };
+}
+
+export async function generateAISEOTasks(gaData, keywordResults, missingFiles, ghostUrls, sitemapUrls, previousGA = []) {
+  const tasks = [];
+  missingFiles.forEach(f => tasks.push({ task: `Create missing static file: ${f}`, reason: 'SEO requires it.', priority: 'High' }));
+  ghostUrls.forEach(u => {
+    if (!sitemapUrls.includes(u)) tasks.push({ task: `Add ghost URL to sitemap or redirect: ${u}`, reason: 'Users visit this URL but it is not indexed.', priority: 'High' });
+  });
+  keywordResults.forEach(p => {
+    p.keywords.forEach(k => { if (k.count === 0) tasks.push({ task: `Add keyword "${k.keyword}" to page ${p.url}`, reason: 'Keyword missing; affects ranking.', priority: 'Medium' }); });
+  });
+  gaData.forEach(p => { if (p.session > 300 && p.views < 10) tasks.push({ task: `Add internal links to ${p.path}`, reason: 'High session but low pageviews.', priority: 'Medium' }); });
+  if (previousGA.length) {
+    const trends = calculateGrowth(gaData, previousGA);
+    trends.forEach(t => {
+      if (t.viewChange < 0) tasks.push({ task: `Investigate drop on ${t.path}`, reason: `Pageviews decreased by ${t.viewChange.toFixed(1)}%`, priority: 'High' });
+      if (t.sessionChange > 20) tasks.push({ task: `Promote ${t.path}`, reason: `Session duration increased by ${t.sessionChange.toFixed(1)}%`, priority: 'Medium' });
+    });
+  }
+  const totalViews = gaData.reduce((sum,p)=>sum+(p.views||0),0);
+  const monetization = estimateMonetization(totalViews);
+  if (!monetization.ready) tasks.push({ task: 'Focus on traffic growth', reason: monetization.note, priority: 'High' });
+  return tasks;
 }
