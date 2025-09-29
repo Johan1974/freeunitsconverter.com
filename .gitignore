@@ -37,22 +37,37 @@ certbot/conf/renewal/
 # Ignore Node.js debug or log files
 npm-debug.log*
 
-# google Analytics API
+# Google Analytics API key
 ga-key.json
 certbot/conf/renewal/freeunitsconverter.com.conf
 
+# -----------------------
+# Static pages
+# -----------------------
 
-# Generated frontend static pages
+# Ignore everything under static-pages
 /frontend/static-pages/**
+
+# Keep .gitkeep
 !/frontend/static-pages/.gitkeep
+
+# Keep all conversionguide.html files
 !/frontend/static-pages/**/conversionguide.html
-/frontend/sitemap.xml
 
-!frontend/static-pages/length/index.html
-!frontend/static-pages/temperature/index.html
-!frontend/static-pages/volume/index.html
-!frontend/static-pages/weight/index.html
+# Keep parent folders for category hubs
+!/frontend/static-pages/length/
+!/frontend/static-pages/temperature/
+!/frontend/static-pages/volume/
+!/frontend/static-pages/weight/
 
+# Keep the index.html files inside those folders
+!/frontend/static-pages/length/index.html
+!/frontend/static-pages/temperature/index.html
+!/frontend/static-pages/volume/index.html
+!/frontend/static-pages/weight/index.html
 
-# Ignore SEO audit static pages completely
+# -----------------------
+# SEO audit pages
+# -----------------------
 /seo_audit/static-pages/**
+/frontend/sitemap.xml
